@@ -190,6 +190,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
               <div class="interpret-content" id="interpretBaseContent"></div>
             </div>
           </div>
+            <div id="hexCompareSection" class="hidden" style="margin-top:16px;border-top:1px solid #ebeef5;padding-top:12px">
+              <div style="font-size:13px;font-weight:500;color:#333;margin-bottom:10px">十六进制对比</div>
+              <div id="hexCompareContent" style="overflow-x:auto;font-family:monospace;font-size:12px;line-height:1.6"></div>
+            </div>
               </div>
               <div class="interpret-footer">
                 <button class="btn-confirm" id="interpretConfirmBtn">
@@ -367,7 +371,7 @@ window._renderIpTable(ct,ipG,curBins,'当前代码');
 if(hasBase&&baseBins.length){window._renderIpTable(bct,ipG,baseBins,'Base版本')}else{bct.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">首版，无基版本可对比</div>'}
 const hexSec=document.getElementById("hexCompareSection");
 const hexCt=document.getElementById("hexCompareContent");
-if(hexSec&&hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}
+if(hexSec){if(hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}else{hexSec.classList.add("hidden")}}
 document.getElementById("interpretArea").classList.remove('hidden');
 document.getElementById("codeFooter").innerHTML="";
 renderUploads()}catch(e){alert('解读错误: '+e.message)}}

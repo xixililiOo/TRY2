@@ -324,7 +324,7 @@ const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font
 bd.appendChild(tr)}
 tb.appendChild(bd);container.appendChild(tb)}
 async function startInterpret(){
-alert(1);
+try{
 showInterpret=true;
 const _pa=L(),_pp=_pa[currentProjectIdx];
 if(!_pp){alert('开始解读失败: 项目对象不存在, idx='+currentProjectIdx);return}
@@ -370,7 +370,7 @@ const hexCt=document.getElementById("hexCompareContent");
 if(hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}else{hexSec.classList.add("hidden")}
 document.getElementById("interpretArea").classList.remove('hidden');
 document.getElementById("codeFooter").innerHTML="";
-renderUploads()}
+renderUploads()}catch(e){alert('解读错误: '+e.message)}}
 function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
 
 /* === project mgmt === */

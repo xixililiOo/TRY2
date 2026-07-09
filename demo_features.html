@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Demo - 算法文档编辑器</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f7fa;color:#333;padding:40px}
+.container{max-width:800px;margin:0 auto}
+h1{font-size:24px;margin-bottom:8px}
+.subtitle{color:#909399;font-size:14px;margin-bottom:32px;line-height:1.6}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.feature-card{background:#fff;border-radius:8px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.feature-card h3{font-size:15px;margin-bottom:8px}
+.feature-card p{font-size:13px;color:#606266;line-height:1.5}
+.feature-card .tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;margin-top:8px;background:#ecf5ff;color:#409eff}
+.ip-group-card{background:#fff;border:1px solid #e4e7ed;border-radius:8px;margin-bottom:12px;overflow:hidden}
+.ip-group-header{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#fafafa;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:500}
+.ip-group-body{padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px}
+.ip-field{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ip-badge{width:22px;height:22px;border-radius:50%;background:#409eff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+.ip-label{font-size:9px;color:#909399;text-align:center;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ip-val{font-size:11px;color:#333;padding:4px 0;text-align:center;word-break:break-all}
+.demo-badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;background:#e6a23c;color:#fff}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>算法文档编辑器 <span class="demo-badge">v1.0.2 Demo</span></h1>
+  <div class="subtitle">
+    本 Demo 展示 019f4806 会话中的核心功能：
+    项目管理后台的算法文档编辑与 IP 组操作界面
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <h3>📁 项目管理</h3>
+      <p>添加/删除项目，选择本地目录，自动创建 code/sf 子目录，数据持久化到 IndexedDB</p>
+      <span class="tag">项目列表</span>
+      <span class="tag">目录选择</span>
+    </div>
+    <div class="feature-card">
+      <h3>📄 算法文档上传</h3>
+      <p>仅支持 .xlsx 格式，自动解析 A-F 列并进行 hex 值格式校验，校验通过才能上传</p>
+      <span class="tag">xlsx校验</span>
+      <span class="tag">确认上传</span>
+    </div>
+    <div class="feature-card">
+      <h3>✏️ IP 组编辑器</h3>
+      <p>每一行参数为一个IP组，支持新增/编辑/删除，全部字段可编辑。保存时校验并写入 xlsx</p>
+      <span class="tag">IP组操作</span>
+      <span class="tag">编辑保存</span>
+    </div>
+    <div class="feature-card">
+      <h3>📊 Code 版本管理</h3>
+      <p>上传代码需关联算法文档和父版本，版本界面展示版本树（含 base 版本文档关联）</p>
+      <span class="tag">版本树</span>
+      <span class="tag">关联追踪</span>
+    </div>
+  </div>
+
+  <h2 style="font-size:18px;margin-bottom:16px">IP组编辑器界面预览</h2>
+
+  <div class="ip-group-card">
+    <div class="ip-group-header">
+      <span>IP组 1</span>
+      <div>
+        <span style="font-size:11px;color:#909399">编辑 · 删除</span>
+      </div>
+    </div>
+    <div class="ip-group-body">
+      <div class="ip-field"><div class="ip-badge">①</div><div class="ip-label">IP名称</div><div class="ip-val">XTC</div></div>
+      <div class="ip-field"><div class="ip-badge">②</div><div class="ip-label">IP开关寄存</div><div class="ip-val">0xd5000</div></div>
+      <div class="ip-field"><div class="ip-badge">③</div><div class="ip-label">IP开状态</div><div class="ip-val">0x01</div></div>
+      <div class="ip-field"><div class="ip-badge">④</div><div class="ip-label">IP关状态</div><div class="ip-val">0x00</div></div>
+      <div class="ip-field"><div class="ip-badge">⑤</div><div class="ip-label">参数起始</div><div class="ip-val">0xd5000</div></div>
+      <div class="ip-field"><div class="ip-badge">⑥</div><div class="ip-label">参数结束</div><div class="ip-val">0xd5fff</div></div>
+    </div>
+  </div>
+
+  <div class="ip-group-card">
+    <div class="ip-group-header">
+      <span>IP组 2</span>
+      <div>
+        <span style="font-size:11px;color:#909399">编辑 · 删除</span>
+      </div>
+    </div>
+    <div class="ip-group-body" style="background:#f0f9ff">
+      <div class="ip-field"><div class="ip-badge" style="background:#67c23a">①</div><div class="ip-label">IP名称</div><input style="width:100%;padding:4px 6px;border:1px solid #bae6fd;border-radius:4px;font-size:11px;text-align:center" value="YTC" /></div>
+      <div class="ip-field"><div class="ip-badge" style="background:#67c23a">②</div><div class="ip-label">IP开关寄存</div><input style="width:100%;padding:4px 6px;border:1px solid #bae6fd;border-radius:4px;font-size:11px;text-align:center" value="0xe0000" /></div>
+      <div class="ip-field"><div class="ip-badge" style="background:#67c23a">③</div><div class="ip-label">IP开状态</div><input style="width:100%;padding:4px 6px;border:1px solid #bae6fd;border-radius:4px;font-size:11px;text-align:center" value="0x01 0x02" /></div>
+      <div class="ip-field"><div class="ip-badge" style="background:#67c23a">④</div><div class="ip-label">IP关状态</div><input style="width:100%;padding:4px 6px;border:1px solid #bae6fd;border-radius:4px;font-size:11px;text-align:center" value="0x00 0x01" /></div>
+      <div class="ip-field"><div class="ip-badge" style="background:#67c23a">⑤</div><div class="ip-label">参数起始</div><input style="width:100%;padding:4px 6px;border:1px solid #bae6fd;border-radius:4px;font-size:11px;text-align:center" value="0xe0000" /></div>
+      <div class="ip-field"><div class="ip-badge" style="background:#67c23a">⑥</div><div class="ip-label">参数结束</div><input style="width:100%;padding:4px 6px;border:1px solid #bae6fd;border-radius:4px;font-size:11px;text-align:center" value="0xeffff" /></div>
+    </div>
+  </div>
+  
+  <div style="margin-top:32px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+    <h3 style="font-size:14px;margin-bottom:8px">完整功能入口</h3>
+    <p style="font-size:13px;color:#606266">主应用见 <code>index.html</code>，含完整项目管理、上传流程、版本控制。</p>
+    <p style="font-size:13px;color:#909399;margin-top:8px">当前版本: <strong>v1.0.2</strong> | GitHub: <a href="https://github.com/xixililiOo/TRY2" target="_blank">xixililiOo/TRY2</a></p>
+  </div>
+</div>
+</body>
+</html>

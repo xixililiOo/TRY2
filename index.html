@@ -288,22 +288,18 @@ async function openFilePicker(multiple,accept){const i=document.createElement("i
 function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}
 function renderHexCompare(container,baseData,curData){
 const maxLen=Math.max(curData.length,baseData.length);
-let lines=[];
+let h="Offset    Current                           Base\n";
 for(let a=0;a<maxLen;a+=16){
 const aS=a.toString(16).toUpperCase().padStart(8,"0");
-let cH="",bH="",cA="",bA="";
+let cH="",bH="";
 for(let c=0;c<16;c++){
 const o=a+c,cv=o<curData.length?curData[o]:-1,bv=o<baseData.length?baseData[o]:-1,d=cv!==bv;
 const cS=cv>=0?cv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 const bS=bv>=0?bv.toString(16).toUpperCase().padStart(2,"0"):"  ";
-const cC=cv>=32&&cv<=126?String.fromCharCode(cv):".";
-const bC=bv>=32&&bv<=126?String.fromCharCode(bv):".";
-if(d){cH+="<span class=hd>"+cS+"</span> ";bH+="<span class=hd>"+bS+"</span> ";cA+="<span class=hd>"+cC+"</span>";bA+="<span class=hd>"+bC+"</span>"}
-else{cH+=cS+" ";bH+=bS+" ";cA+=cC;bA+=bC}}
-lines.push("CUR "+aS+" | "+cH+"| "+cA);
-lines.push("BASE "+aS+" | "+bH+"| "+bA)}
-container.innerHTML="<pre style=margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace>"+lines.join("\n")+"</pre>"}
-
+if(d){cH+="<span class=hd>"+cS+"</span> ";bH+="<span class=hd>"+bS+"</span> "}
+else{cH+=cS+" ";bH+=bS+" "}}
+h+=aS+"  "+cH+"  "+bH+"\n"}
+container.innerHTML="<pre style=margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace>"+h+"</pre>"}
 function _renderIpTable(container,ipGroups,bins,label){
 if(!ipGroups.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': No IP data';container.appendChild(em);return}
 if(!bins.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': 暂无数据';container.appendChild(em);return}

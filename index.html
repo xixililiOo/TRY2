@@ -291,8 +291,8 @@ async function openFilePicker(multiple,accept){const i=document.createElement("i
 function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}
 function renderHexCompare(container,baseData,curData){
 const maxLen=Math.max(curData.length,baseData.length);
-let h="Offset    Current                           Base\n";
-h+="          0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n";
+let h="Offset                    Current                                             Base                      \n";
+h+="          0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n";
 for(let a=0;a<maxLen;a+=16){
 let hasDiff=false;
 const aS=a.toString(16).toUpperCase().padStart(8,"0");

@@ -299,6 +299,30 @@ else{cH+=cS+" ";bH+=bS+" ";cA+=cC;bA+=bC}}
 lines.push("CUR "+aS+" | "+cH+"| "+cA);
 lines.push("BASE "+aS+" | "+bH+"| "+bA)}
 container.innerHTML="<pre style=margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace>"+lines.join("\n")+"</pre>"}
+
+function _renderIpTable(container,ipGroups,bins,label){
+if(!ipGroups.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': No IP data';container.appendChild(em);return}
+if(!bins.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': 暂无数据';container.appendChild(em);return}
+const tb=document.createElement('table');tb.style.cssText='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)';
+const hdr=document.createElement('thead');const hr=document.createElement('tr');
+const hds=['IP名称','状态','CRC'];
+for(let hi=0;hi<3;hi++){const th=document.createElement('th');th.style.cssText='padding:12px 16px;font-size:13px;font-weight:500;color:#909399;text-align:left;background:#fafafa;border-bottom:1px solid #ebeef5';th.textContent=hds[hi];hr.appendChild(th)}
+hdr.appendChild(hr);tb.appendChild(hdr);
+const bd=document.createElement('tbody');
+for(const g of ipGroups){
+const addr=parseInt(g.ra,16);let st='',m='',mHex='';
+if(!isNaN(addr)){for(const b of bins){if(addr<b.d.length){const v=b.d[addr];const onP=g.on.split(/\s+/);const offP=g.off.split(/\s+/);if(onP.some(p=>parseInt(p,16)===v)){st='ON';m=g.on;mHex='0x'+v.toString(16).toUpperCase()}else if(offP.some(p=>parseInt(p,16)===v)){st='OFF';m=g.off;mHex='0x'+v.toString(16).toUpperCase()}break}}}
+let crcV='NA',crcLen=0;
+if(g.ps&&g.pe){const si2=parseInt(g.ps,16),ei2=parseInt(g.pe,16);if(!isNaN(si2)&&!isNaN(ei2)&&si2<=ei2){const len=ei2-si2+1;crcLen=len;const buf=new Uint8Array(len);let ok=false;for(const bb of bins){if(si2+len<=bb.d.length){buf.set(bb.d.slice(si2,si2+len));ok=true;break}}if(ok){const crc=crc16(buf);crcV='0x'+crc.toString(16).toUpperCase().padStart(4,'0')}}}
+const tr=document.createElement('tr');
+const td1=document.createElement('td');td1.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#f56c6c;font-weight:500';td1.textContent=g.n;tr.appendChild(td1);
+const td2=document.createElement('td');td2.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0';
+let bbg='#fdf6ec',bfc='#e6a23c';
+if(st==='ON'){bbg='#f0f9eb';bfc='#67c23a'}else if(st==='OFF'){bbg='#fef0f0';bfc='#f56c6c'}
+const badge=document.createElement('span');badge.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:'+bbg+';color:'+bfc;badge.textContent=st||'?';td2.appendChild(badge);tr.appendChild(td2);
+const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#409eff;font-family:monospace';td3.textContent='CRC:'+crcV;tr.appendChild(td3);
+bd.appendChild(tr)}
+tb.appendChild(bd);container.appendChild(tb)}
 async function startInterpret(){
 showInterpret=true;
 const p=L()[currentProjectIdx];
@@ -327,43 +351,21 @@ refDoc=selectedDoc}catch(e){refDoc=selectedDoc+' (err)'}
 else{refDoc='(none)'}
 const pfo=pendingFileObjects[p.name]?.codes||[];
 const curBins=[];
-for(const bf of pfo)try{curBins.push({n:bf.n,d:new Uint8Array(await bf.arrayBuffer())})}catch(e){}
+for(const bf of pfo)try{curBins.push({n:bf.name,d:new Uint8Array(await bf.arrayBuffer())})}catch(e){}
 let baseBins=[];
-if(selectedBase&&h){try{const cd=await h.getDirectoryHandle("code");const bfh=await cd.getFileHandle(selectedBase);const bf=await bfh.getFile();const bd=await bf.arrayBuffer();baseBins.push({n:selectedBase,d:new Uint8Array(bd)})}catch(e){}}
+const hasBase=!!selectedBase;
+if(hasBase&&h){try{const cd=await h.getDirectoryHandle("code");const bfh=await cd.getFileHandle(selectedBase);const bf=await bfh.getFile();const bd=await bf.arrayBuffer();baseBins.push({n:selectedBase,d:new Uint8Array(bd)})}catch(e){}}
 const ct=document.getElementById("interpretContent");
 const bct=document.getElementById("interpretBaseContent");
 ct.innerHTML='';
 bct.innerHTML='';
 const baseCol=document.getElementById("baseInterpretCol");
-if(selectedBase&&baseBins.length){baseCol.style.display="flex"}else{baseCol.style.display="none"}
-function renderTable(container,bins,label){
-if(!ipG.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': No IP data';container.appendChild(em);return}
-if(!bins.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': '+(!selectedBase?'暂无数据':'无法加载文件');container.appendChild(em);return}
-const tb=document.createElement('table');tb.style.cssText='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)';
-const hdr=document.createElement('thead');const hr=document.createElement('tr');
-const hds=['IP名称','状态','CRC'];
-for(let hi=0;hi<3;hi++){const th=document.createElement('th');th.style.cssText='padding:12px 16px;font-size:13px;font-weight:500;color:#909399;text-align:left;background:#fafafa;border-bottom:1px solid #ebeef5';th.textContent=hds[hi];hr.appendChild(th)}
-hdr.appendChild(hr);tb.appendChild(hdr);
-const bd=document.createElement('tbody');
-for(const g of ipG){
-const addr=parseInt(g.ra,16);let st='',m='',mHex='';
-if(!isNaN(addr)){for(const b of bins){if(addr<b.d.length){const v=b.d[addr];const onP=g.on.split(/\s+/);const offP=g.off.split(/\s+/);if(onP.some(p=>parseInt(p,16)===v)){st='ON';m=g.on;mHex='0x'+v.toString(16).toUpperCase()}else if(offP.some(p=>parseInt(p,16)===v)){st='OFF';m=g.off;mHex='0x'+v.toString(16).toUpperCase()}break}}}
-let crcV='NA',crcLen=0;
-if(g.ps&&g.pe){const si2=parseInt(g.ps,16),ei2=parseInt(g.pe,16);if(!isNaN(si2)&&!isNaN(ei2)&&si2<=ei2){const len=ei2-si2+1;crcLen=len;const buf=new Uint8Array(len);let ok=false;for(const bb of bins){if(si2+len<=bb.d.length){buf.set(bb.d.slice(si2,si2+len));ok=true;break}}if(ok){const crc=crc16(buf);crcV='0x'+crc.toString(16).toUpperCase().padStart(4,'0')}}}
-const tr=document.createElement('tr');
-const td1=document.createElement('td');td1.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#f56c6c;font-weight:500';td1.textContent=g.n;tr.appendChild(td1);
-const td2=document.createElement('td');td2.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0';
-let bbg='#fdf6ec',bfc='#e6a23c';
-if(st==='ON'){bbg='#f0f9eb';bfc='#67c23a'}else if(st==='OFF'){bbg='#fef0f0';bfc='#f56c6c'}
-const badge=document.createElement('span');badge.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:'+bbg+';color:'+bfc;badge.textContent=st||'?';td2.appendChild(badge);tr.appendChild(td2);
-const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#409eff;font-family:monospace';td3.textContent='CRC:'+crcV;tr.appendChild(td3);
-bd.appendChild(tr)}
-tb.appendChild(bd);container.appendChild(tb)}
-renderTable(ct,curBins,'当前代码');
-renderTable(bct,baseBins,'Base版本');
+if(hasBase&&baseBins.length){baseCol.style.display="flex"}else{baseCol.style.display="none"}
+window._renderIpTable(ct,ipG,curBins,'当前代码');
+if(hasBase&&baseBins.length){window._renderIpTable(bct,ipG,baseBins,'Base版本')}else{bct.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">首版，无基版本可对比</div>'}
 const hexSec=document.getElementById("hexCompareSection");
 const hexCt=document.getElementById("hexCompareContent");
-if(selectedBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}else{hexSec.classList.add("hidden")}
+if(hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}else{hexSec.classList.add("hidden")}
 document.getElementById("interpretArea").classList.remove('hidden');
 document.getElementById("codeFooter").innerHTML="";
 renderUploads()}

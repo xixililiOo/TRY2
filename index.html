@@ -367,7 +367,7 @@ window._renderIpTable(ct,ipG,curBins,'当前代码');
 if(hasBase&&baseBins.length){window._renderIpTable(bct,ipG,baseBins,'Base版本')}else{bct.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">首版，无基版本可对比</div>'}
 const hexSec=document.getElementById("hexCompareSection");
 const hexCt=document.getElementById("hexCompareContent");
-if(hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}else{hexSec.classList.add("hidden")}
+if(hexSec&&hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}
 document.getElementById("interpretArea").classList.remove('hidden');
 document.getElementById("codeFooter").innerHTML="";
 renderUploads()}catch(e){alert('解读错误: '+e.message)}}

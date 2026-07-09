@@ -1,237 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>项目管理</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f5f7fa;color:#333;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:80px 20px}
-.container{width:100%;max-width:920px}
-.hidden{display:none!important}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
-.header h1{font-size:22px;font-weight:600}
-.btn-back{display:inline-flex;align-items:center;gap:4px;padding:8px 14px;background:#fff;border:1px solid #dcdfe6;border-radius:6px;font-size:13px;cursor:pointer;color:#606266;transition:all .2s}
-.btn-back:hover{color:#409eff;border-color:#c6e2ff;background:#ecf5ff}
-.btn-back svg{width:14px;height:14px;fill:currentColor}
-.btn-add{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;background:#409eff;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;transition:background .2s}
-.btn-add:hover{background:#337ecc}
-.btn-add svg{width:16px;height:16px;fill:currentColor}
-.list{display:flex;flex-direction:column;gap:8px}
-.project-card{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);cursor:pointer;transition:all .2s;position:relative}
-.project-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.12);border-left:3px solid #409eff;padding-left:13px}
-.project-info{display:flex;flex-direction:column;gap:2px;overflow:hidden;flex:1}
-.project-name{font-size:14px;font-weight:500}
-.project-path{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.project-arrow{flex-shrink:0;color:#ccc;font-size:14px;margin-left:8px}
-.btn-del-project{flex-shrink:0;width:28px;height:28px;border:none;background:transparent;border-radius:6px;cursor:pointer;color:#ccc;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.btn-del-project:hover{background:#fef0f0;color:#f56c6c}
-.detail-header{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.detail-header h2{font-size:20px;font-weight:600}
-.detail-tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid #e4e7ed}
-.detail-tab{padding:10px 22px;font-size:14px;cursor:pointer;color:#909399;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
-.detail-tab:hover{color:#606266}
-.detail-tab.active{color:#409eff;border-bottom-color:#409eff;font-weight:500}
-.upload-section{margin-bottom:24px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.section-label{font-size:13px;font-weight:500;color:#606266}
-.upload-btn-doc{display:flex;align-items:center;gap:8px;width:100%;padding:16px 20px;background:#fff;border:1px dashed #dcdfe6;border-radius:8px;font-size:15px;cursor:pointer;color:#606266;transition:all .2s}
-.upload-btn-doc:hover{border-color:#409eff;color:#409eff;background:#ecf5ff}
-.upload-btn-doc svg{width:20px;height:20px;fill:currentColor;flex-shrink:0}
-.upload-btn-code{display:flex;align-items:center;gap:6px;width:100%;padding:10px 16px;background:#fff;border:1px dashed #dcdfe6;border-radius:6px;font-size:13px;cursor:pointer;color:#606266;transition:all .2s}
-.upload-btn-code:hover{border-color:#409eff;color:#409eff;background:#ecf5ff}
-.upload-btn-code svg{width:16px;height:16px;fill:currentColor;flex-shrink:0}
-.upload-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.upload-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;font-size:13px}
-.upload-item.invalid{background:#fef0f0;border-color:#f56c6c}
-.upload-item.valid{background:#f0f9eb;border-color:#67c23a}
-.upload-item-left{display:flex;align-items:center;gap:8px;overflow:hidden}
-.upload-item-status{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#f59e0b}
-.upload-item-status.error{background:#f56c6c}
-.upload-item-status.ok{background:#67c23a}
-.upload-item-name{color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.upload-item-extra{font-size:11px;color:#909399;margin-left:6px;flex-shrink:0}
-.upload-item-msg{padding:4px 14px 10px;font-size:11px;color:#f56c6c;border-top:1px solid #fde2e2;white-space:pre-wrap;line-height:1.5}
-.upload-item-remove{flex-shrink:0;width:24px;height:24px;border:none;background:transparent;border-radius:4px;cursor:pointer;color:#ccc;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.upload-item-remove:hover{background:#fef0f0;color:#f56c6c}
-.upload-footer{display:flex;justify-content:flex-end;margin-top:10px;min-height:36px;gap:8px}
-.btn-interpret,.btn-confirm{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;transition:background .2s}
-.btn-interpret{background:#409eff}
-.btn-interpret:hover{background:#337ecc}
-.btn-confirm{background:#10b981}
-.btn-confirm:hover{background:#059669}
-.btn-confirm:disabled{background:#c0c4cc;cursor:not-allowed}
-.btn-interpret svg,.btn-confirm svg{width:14px;height:14px;fill:currentColor}
-.code-row{display:flex;gap:16px;align-items:stretch}
-.code-left{flex:1;min-width:0}
-.code-right{width:260px;flex-shrink:0}
-.sf-panel,.interpret-panel{background:#fff;border:1px solid #e4e7ed;border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
-.interpret-panel{min-height:200px}
-.interpret-header{padding:12px 16px;font-size:14px;font-weight:500;color:#333;border-bottom:1px solid #f0f0f0;background:#fafafa}
-.interpret-body{flex:1;padding:24px 16px;display:flex;flex-direction:column;gap:12px}
-.interpret-files{display:flex;flex-direction:column;gap:6px}
-.interpret-file-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9fafb;border-radius:6px;font-size:13px;color:#606266}
-.interpret-file-item svg{width:14px;height:14px;fill:#409eff;flex-shrink:0}
-.interpret-content{flex:1;min-height:80px;border:1px dashed #e4e7ed;border-radius:6px;padding:12px;font-size:13px;overflow-y:auto;max-height:400px}
-.interp-ref{font-size:12px;color:#909399;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
-.ip-result{background:#f9fafb;border-radius:6px;padding:10px 12px;margin-bottom:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.ip-result .ip-name{font-weight:500;color:#333;min-width:60px;font-size:13px}
-.ip-result .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
-.tag-on{background:#f0f9eb;color:#67c23a!important}
-.tag-off{background:#fef0f0;color:#f56c6c!important}
-.tag-unk{background:#fdf6ec;color:#e6a23c!important}
-.tag-crc{background:#ecf5ff;color:#409eff!important;font-family:monospace!important}
-.tag-detail{font-size:10px;color:#999!important;margin-left:2px}
 
-.interpret-footer{display:flex;justify-content:flex-end;padding:12px 16px;border-top:1px solid #f0f0f0;gap:8px}
-.sf-panel-section{display:flex;flex-direction:column}
-.sf-panel-section+.sf-panel-section{border-top:1px solid #e4e7ed}
-.sf-panel-header{padding:8px 12px;font-size:12px;font-weight:500;color:#606266;background:#fafafa;flex-shrink:0}
-.sf-panel-body{overflow-y:auto;padding:4px 0;max-height:180px}
-.sf-panel-body::-webkit-scrollbar{width:4px}
-.sf-panel-body::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
-.sf-file{display:flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;font-size:12px;color:#333;cursor:pointer;transition:all .15s;border-left:3px solid transparent}
-.sf-file:hover{background:#f5f7fa}
-.sf-file.selected{background:#ecf5ff;border-left-color:#409eff}
-.sf-file svg.doc-icon{width:12px;height:12px;fill:#409eff;flex-shrink:0}
-.sf-file svg.code-icon{width:12px;height:12px;fill:#e6a23c;flex-shrink:0}
-.sf-file-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
-.sf-file-sub{font-size:10px;color:#909399;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;padding-left:20px;display:block}.sf-check{width:14px;height:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid #dcdfe6;font-size:8px;color:#fff;transition:all .15s}
-.sf-check.selected{background:#409eff;border-color:#409eff}
-.sf-check svg{width:8px;height:8px;fill:#fff}
-.sf-empty{padding:30px 12px;text-align:center;color:#bbb;font-size:12px}
-.sf-selected-bar{padding:4px 12px 6px;font-size:11px;color:#909399;border-top:1px solid #f0f0f0;min-height:24px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.sf-selected-bar .tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:11px}
-.sf-selected-bar .tag.doc{background:#ecf5ff;color:#409eff}
-.sf-selected-bar .tag.base{background:#fdf6ec;color:#e6a23c}
-.table-controls{display:flex;justify-content:flex-end;margin-bottom:12px}
-.btn-refresh{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#fff;border:1px solid #dcdfe6;border-radius:6px;font-size:13px;cursor:pointer;color:#606266;transition:all .2s}
-.btn-refresh:hover{color:#409eff;border-color:#c6e2ff;background:#ecf5ff}
-.btn-refresh svg{width:14px;height:14px;fill:currentColor}
-.version-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.version-table th{padding:12px 16px;font-size:13px;font-weight:500;color:#909399;text-align:left;background:#fafafa;border-bottom:1px solid #ebeef5}
-.version-table td{padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0}
-.version-table tr:last-child td{border-bottom:none}
-.version-table tr:hover td{background:#f5f7fa}
-.cell-name{color:#f56c6c;font-weight:500}
-.cell-time{color:#67c23a}
-.cell-doc{color:#409eff}
-.cell-base{color:#e6a23c}.version-sub{font-size:10px;color:#909399;display:block;margin-top:2px}
-.cell-size{color:#909399}
-.cell-action{width:80px;text-align:center}.btn-act{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border:none;border-radius:4px;font-size:11px;cursor:pointer;transition:all .2s;margin:0 2px}.btn-act svg{width:11px;height:11px;fill:currentColor}.btn-edit{background:#ecf5ff;color:#409eff}.btn-edit:hover{background:#409eff;color:#fff}.btn-del{background:#fef0f0;color:#f56c6c}.btn-del:hover{background:#f56c6c;color:#fff}.btn-del-version{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border:none;background:#fef0f0;color:#f56c6c;border-radius:4px;font-size:12px;cursor:pointer;transition:all .2s}.btn-del-version:hover{background:#f56c6c;color:#fff}.btn-del-version svg{width:12px;height:12px;fill:currentColor}.empty{text-align:center;padding:60px 0;color:#bbb;font-size:14px}
-.empty-docs{text-align:center;padding:20px 0;color:#bbb;font-size:13px}
-</style>
-</head>
-<body>
-<div class="container">
-
-<div id="listView">
-  <div class="header">
-    <h1>项目列表</h1>
-    <button class="btn-add" id="addBtn">
-      <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-      项目添加
-    </button>
-  </div>
-  <div class="list" id="list"></div>
-</div>
-
-<div id="detailView" class="hidden">
-  <div class="detail-header">
-    <button class="btn-back" id="backBtn">
-      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-      返回
-    </button>
-    <h2 id="detailTitle"></h2>
-  </div>
-  <div class="detail-tabs">
-    <button class="detail-tab active" data-view="upload">上传</button>
-    <button class="detail-tab" data-view="codeversion">Code版本</button>
-    <button class="detail-tab" data-view="docversion">算法文档</button>
-  </div>
-
-  <div id="uploadView">
-    <div class="upload-section">
-      <div class="section-header"><span class="section-label">算法文档（仅支持 .xlsx 格式）</span></div>
-      <button class="upload-btn-doc" id="uploadDocBtn">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
-        上传算法文档
-      </button>
-      <div class="upload-list" id="docList"></div>
-      <div id="docEmpty" class="empty-docs">暂无文档</div>
-      <div class="upload-footer" id="docFooter"></div>
-    </div>
-
-    <div class="upload-section">
-      <div class="section-header"><span class="section-label">项目代码</span></div>
-      <div class="code-row">
-        <div class="code-left">
-          <button class="upload-btn-code" id="uploadCodeBtn">
-            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-            上传代码
-          </button>
-          <div class="upload-list" id="codeList"></div>
-          <div id="codeEmpty" class="empty-docs">暂无代码</div>
-          <div class="upload-footer" id="codeFooter"></div>
-
-          <!-- 解读区域 -->
-          <div id="interpretArea" class="hidden" style="margin-top:12px">
-            <div class="interpret-panel">
-              <div class="interpret-header">代码解读</div>
-              <div class="interpret-body">
-                <div class="interpret-files" id="interpretFileList"></div>
-                <div class="interpret-content" id="interpretContent">解读内容区域（待扩展）</div>
-              </div>
-              <div class="interpret-footer">
-                <button class="btn-confirm" id="interpretConfirmBtn">
-                  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                  确认上传
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="code-right">
-          <div class="sf-panel">
-            <div class="sf-panel-section">
-              <div class="sf-panel-header">已上传的算法文档</div>
-              <div class="sf-panel-body" id="sfDocList"><div class="sf-empty">加载中...</div></div>
-            </div>
-            <div class="sf-panel-section">
-              <div class="sf-panel-header">已上传的Code版本</div>
-              <div class="sf-panel-body" id="sfCodeVerList"><div class="sf-empty">加载中...</div></div>
-            </div>
-            <div class="sf-selected-bar" id="sfSelectedBar"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="codeversionView" class="hidden">
-    <div class="table-controls">
-      <button class="btn-refresh" id="refreshCodeBtn">
-        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-        刷新
-      </button>
-    </div>
-    <div id="codeversionContent"><div class="empty">加载中...</div></div>
-  </div>
-
-  <div id="docversionView" class="hidden">
-    <div class="table-controls">
-      <button class="btn-refresh" id="refreshDocBtn">
-        <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-        刷新
-      </button>
-    </div>
-    <div id="docversionContent"><div class="empty">加载中...</div></div>
-  </div>
-</div>
-
-</div>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script>
 window.onerror=function(m,s,l,c,err){alert('JS ERROR: '+m+' at line '+l+', col '+c)};
 const SK="try2_projects",CONFIG_FILE="upload_config.json";
 let currentProjectIdx=-1,selectedDoc=null,selectedBase=null,currentView="upload",showInterpret=false,docDetailView=false,docDetailName="";
@@ -250,7 +17,7 @@ function renderList(){const a=L(),c=document.getElementById("list");if(!a.length
 async function showDetail(){const p=L()[currentProjectIdx];if(!p)return;selectedDoc=null;selectedBase=null;currentView="upload";showInterpret=false;document.getElementById("listView").classList.add("hidden");document.getElementById("detailView").classList.remove("hidden");document.getElementById("detailTitle").textContent=p.name;switchView("upload")}
 function showList(){document.getElementById("detailView").classList.add("hidden");document.getElementById("listView").classList.remove("hidden");const p=L()[currentProjectIdx];if(p)delete pendingFileObjects[p.name];currentProjectIdx=-1;selectedDoc=null;selectedBase=null;showInterpret=false;renderList()}
 async function getHandle(name){if(projectHandles[name]){try{if((await projectHandles[name].queryPermission({mode:"readwrite"}))==="granted")return projectHandles[name];if((await projectHandles[name].requestPermission({mode:"readwrite"}))==="granted")return projectHandles[name]}catch(e){}}try{const h=await dbGet(name);if(h){projectHandles[name]=h;if((await h.queryPermission({mode:"readwrite"}))==="granted")return h;if((await h.requestPermission({mode:"readwrite"}))==="granted")return h}}catch(e){}return null}
-function switchView(view){currentView=view;showInterpret=false;["upload","codeversion","docversion"].forEach(v=>document.getElementById(v+"View").classList.toggle("hidden",v!==view));document.querySelectorAll(".detail-tab").forEach(t=>t.classList.toggle("active",t.dataset.view===view));if(view==="upload"){renderUploads();loadSfDocs();loadCodeVersions()}else if(view==="codeversion")loadCodeVersion();else if(view==="docversion")loadDocVersion()}
+function switchView(view){currentView=view;showInterpret=false;document.getElementById("interpretArea").classList.add('hidden');["upload","codeversion","docversion"].forEach(v=>document.getElementById(v+"View").classList.toggle("hidden",v!==view));document.querySelectorAll(".detail-tab").forEach(t=>t.classList.toggle("active",t.dataset.view===view));if(view==="upload"){renderUploads();loadSfDocs();loadCodeVersions()}else if(view==="codeversion")loadCodeVersion();else if(view==="docversion")loadDocVersion()}
 async function readCodeConfig(name){const h=await getHandle(name);if(!h)return[];try{const cd=await h.getDirectoryHandle("code");const fh=await cd.getFileHandle(CONFIG_FILE);const f=await fh.getFile();const t=await f.text();return JSON.parse(t).entries||[]}catch(e){return[]}}
 async function writeCodeConfig(name,entries){const h=await getHandle(name);if(!h)return;const cd=await h.getDirectoryHandle("code",{create:true});const fh=await cd.getFileHandle(CONFIG_FILE,{create:true});const ws=await fh.createWritable();await ws.write(JSON.stringify({entries},null,2));await ws.close()}
 /* === right panel delegation === */
@@ -272,7 +39,7 @@ function renderItem(file,idx,key){if(key==="docs"){const st=file._valid===false?
 async function openFilePicker(multiple,accept){const i=document.createElement("input");i.type="file";i.multiple=multiple;if(accept)i.accept=accept;return new Promise(r=>{i.addEventListener("change",()=>r(i.files));i.click()})}
 /* === interpret area === */
 
-function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}async function startInterpret(){showInterpret=true;const p=L()[currentProjectIdx];if(!p)return;const codes=p.codes||[];if(!codes.length)return;const fl=document.getElementById("interpretFileList");fl.innerHTML='';const h=projectHandles[p.name];let ipG=[],refDoc='';if(selectedDoc&&typeof XLSX!="undefined"&&h){try{const sf=await h.getDirectoryHandle("sf");const fh=await sf.getFileHandle(selectedDoc);const f=await fh.getFile();const d=await f.arrayBuffer();const wb=XLSX.read(d,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const j=XLSX.utils.sheet_to_json(ws,{header:1});for(let r=1;r<j.length;r++){const row=j[r];if(!row||!row[0])continue;ipG.push({n:String(row[0]||"").trim(),ra:String(row[1]||"").trim(),on:String(row[2]||"").trim(),off:String(row[3]||"").trim(),ps:String(row[4]||"").trim(),pe:String(row[5]||"").trim()})}refDoc=selectedDoc}catch(e){refDoc=selectedDoc+' (err)'}}else if(selectedDoc){refDoc=selectedDoc+' (no lib)'}else{refDoc='(none)'}const pfo=pendingFileObjects[p.name]?.codes||[];const bins=[];for(const bf of pfo)try{bins.push({n:bf.n,d:new Uint8Array(await bf.arrayBuffer())})}catch(e){}const ct=document.getElementById("interpretContent");ct.innerHTML='';const refDiv=document.createElement('div');refDiv.style.cssText='font-size:12px;color:#909399;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0';refDiv.textContent='Doc: '+E(refDoc)+' | Files: '+E(codes.map(f=>f.name).join(', '));ct.appendChild(refDiv);for(const g of ipG){const addr=parseInt(g.ra,16);let st='',m='',mHex='';if(!isNaN(addr)){for(const b of bins){if(addr<b.d.length){const v=b.d[addr];const onP=g.on.split(/\s+/);const offP=g.off.split(/\s+/);if(onP.some(p=>parseInt(p,16)===v)){st='ON';m=g.on;mHex='0x'+v.toString(16).toUpperCase()}else if(offP.some(p=>parseInt(p,16)===v)){st='OFF';m=g.off;mHex='0x'+v.toString(16).toUpperCase()}break}}}let crcV='NA',crcLen=0;if(g.ps&&g.pe){const s=parseInt(g.ps,16),e=parseInt(g.pe,16);if(!isNaN(s)&&!isNaN(e)&&s<=e){const len=e-s+1;crcLen=len;const buf=new Uint8Array(len);let ok=false;for(const b of bins){if(s+len<=b.d.length){buf.set(b.d.slice(s,s+len));ok=true;break}}if(ok){const crc=crc16(buf);crcV='0x'+crc.toString(16).toUpperCase().padStart(4,'0')}}}const card=document.createElement('div');card.style.cssText='background:#f9fafb;border-radius:6px;padding:10px 12px;margin-bottom:8px;display:flex;flex-wrap:wrap;align-items:center;gap:8px';const nm=document.createElement('span');nm.style.cssText='font-weight:500;color:#333;min-width:60px;font-size:13px';nm.textContent=g.n;card.appendChild(nm);let sbg='#fdf6ec',sfc='#e6a23c';if(st==='ON'){sbg='#f0f9eb';sfc='#67c23a'}else if(st==='OFF'){sbg='#fef0f0';sfc='#f56c6c'}const stEl=document.createElement('span');stEl.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:'+sbg+';color:'+sfc;stEl.textContent=st||'?';card.appendChild(stEl);const crcEl=document.createElement('span');crcEl.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;font-family:monospace;background:#ecf5ff;color:#409eff';crcEl.textContent='CRC:'+crcV;card.appendChild(crcEl);if(st){const det=document.createElement('span');det.style.cssText='font-size:10px;color:#999;margin-left:2px';det.textContent='REG:'+E(g.ra)+' VAL:'+mHex+' ('+E(m)+')';card.appendChild(det)}if(g.ps&&g.pe){const det2=document.createElement('span');det2.style.cssText='font-size:10px;color:#999;margin-left:2px';det2.textContent='PARAM:'+E(g.ps)+'-'+E(g.pe)+' ('+crcLen+'B)';card.appendChild(det2)}ct.appendChild(card)}if(!ipG.length){const empty=document.createElement('div');empty.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';empty.textContent='No IP data';ct.appendChild(empty)}document.getElementById("interpretArea").classList.remove('hidden');document.getElementById("codeFooter").innerHTML="";renderUploads()}function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
+function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}async function startInterpret(){showInterpret=true;const p=L()[currentProjectIdx];if(!p)return;const codes=p.codes||[];if(!codes.length)return;const fl=document.getElementById("interpretFileList");fl.innerHTML='';const h=projectHandles[p.name];let ipG=[],refDoc='';if(selectedDoc&&typeof XLSX!="undefined"&&h){try{const sf=await h.getDirectoryHandle("sf");const fh=await sf.getFileHandle(selectedDoc);const f=await fh.getFile();const d=await f.arrayBuffer();const wb=XLSX.read(d,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const j=XLSX.utils.sheet_to_json(ws,{header:1});for(let r=1;r<j.length;r++){const row=j[r];if(!row||!row[0])continue;ipG.push({n:String(row[0]||"").trim(),ra:String(row[1]||"").trim(),on:String(row[2]||"").trim(),off:String(row[3]||"").trim(),ps:String(row[4]||"").trim(),pe:String(row[5]||"").trim()})}refDoc=selectedDoc}catch(e){refDoc=selectedDoc+' (err)'}}else if(selectedDoc){refDoc=selectedDoc+' (no lib)'}else{refDoc='(none)'}const pfo=pendingFileObjects[p.name]?.codes||[];const bins=[];for(const bf of pfo)try{bins.push({n:bf.n,d:new Uint8Array(await bf.arrayBuffer())})}catch(e){}const ct=document.getElementById("interpretContent");ct.innerHTML='';if(!ipG.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent='No IP data';ct.appendChild(em)}else{const tb=document.createElement('table');tb.style.cssText='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)';const hdr=document.createElement('thead');const hr=document.createElement('tr');const hds=['IP名称','状态','CRC'];for(let hi=0;hi<3;hi++){const th=document.createElement('th');th.style.cssText='padding:12px 16px;font-size:13px;font-weight:500;color:#909399;text-align:left;background:#fafafa;border-bottom:1px solid #ebeef5';th.textContent=hds[hi];hr.appendChild(th)}hdr.appendChild(hr);tb.appendChild(hdr);const bd=document.createElement('tbody');for(const g of ipG){const addr=parseInt(g.ra,16);let st='',m='',mHex='';if(!isNaN(addr)){for(const b of bins){if(addr<b.d.length){const v=b.d[addr];const onP=g.on.split(/\s+/);const offP=g.off.split(/\s+/);if(onP.some(p=>parseInt(p,16)===v)){st='ON';m=g.on;mHex='0x'+v.toString(16).toUpperCase()}else if(offP.some(p=>parseInt(p,16)===v)){st='OFF';m=g.off;mHex='0x'+v.toString(16).toUpperCase()}break}}}let crcV='NA',crcLen=0;if(g.ps&&g.pe){const si2=parseInt(g.ps,16),ei2=parseInt(g.pe,16);if(!isNaN(si2)&&!isNaN(ei2)&&si2<=ei2){const len=ei2-si2+1;crcLen=len;const buf=new Uint8Array(len);let ok=false;for(const bb of bins){if(si2+len<=bb.d.length){buf.set(bb.d.slice(si2,si2+len));ok=true;break}}if(ok){const crc=crc16(buf);crcV='0x'+crc.toString(16).toUpperCase().padStart(4,'0')}}}const tr=document.createElement('tr');const td1=document.createElement('td');td1.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#f56c6c;font-weight:500';td1.textContent=g.n;tr.appendChild(td1);const td2=document.createElement('td');td2.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0';let bbg='#fdf6ec',bfc='#e6a23c';if(st==='ON'){bbg='#f0f9eb';bfc='#67c23a'}else if(st==='OFF'){bbg='#fef0f0';bfc='#f56c6c'}const badge=document.createElement('span');badge.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:'+bbg+';color:'+bfc;badge.textContent=st||'?';td2.appendChild(badge);tr.appendChild(td2);const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#409eff;font-family:monospace';td3.textContent='CRC:'+crcV;tr.appendChild(td3);bd.appendChild(tr)}tb.appendChild(bd);ct.appendChild(tb)}document.getElementById("interpretArea").classList.remove('hidden');document.getElementById("codeFooter").innerHTML="";renderUploads()}function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
 
 /* === project mgmt === */
 async function addProject(){if(window.showDirectoryPicker){try{const h=await window.showDirectoryPicker();await h.getDirectoryHandle("code",{create:true});await h.getDirectoryHandle("sf",{create:true});const a=L();a.push({name:h.name,path:"已选择文件夹: "+h.name,docs:[],codes:[]});S(a);projectHandles[h.name]=h;await dbPut(h.name,h);renderList();return}catch(e){if(e.name!=="AbortError")throw e}}const i=document.createElement("input");i.type="file";i.webkitdirectory=true;i.style.display="none";i.addEventListener("change",()=>{if(!i.files||!i.files.length)return;const d=i.files[0].webkitRelativePath.split("/")[0];const a=L();a.push({name:d,path:"已选择文件夹: "+d+"（降级模式）",docs:[],codes:[]});S(a);renderList()});document.body.appendChild(i);i.click();i.remove()}
@@ -302,7 +69,7 @@ function deleteIpGroup(idx){if(!confirm("确定要删除该IP组吗？"))return;
 function ipv(arr,skipIdx){const errs=[];for(let i=0;i<arr.length;i++){if(i===skipIdx)continue;const g=arr[i];if(!g.A&&!g.B&&!g.C&&!g.D&&!g.E&&!g.F)continue;const r=/^0x[0-9a-fA-F]+$/;var ck=function(v,l){if(!v)return;const p=v.split(/\s+/);for(const x of p){if(!r.test(x)){errs.push("第"+(i+1)+"行 "+l+": \""+v+"\" 非十六进制");return}}};ck(g.B,"IP开关寄存器起始地址");ck(g.C,"IP开寄存器状态值");ck(g.D,"IP关寄存器状态值");ck(g.E,"IP参数起始地址");ck(g.F,"IP参数结束地址");if(g.B&&g.B.split(/\s+/).length>1)errs.push("第"+(i+1)+"行 IP开关寄存器起始地址只能填一个值");if(g.C&&g.D){const c=g.C.split(/\s+/).length,d=g.D.split(/\s+/).length;if(c!==d)errs.push("第"+(i+1)+"行 开数量("+c+")与关数量("+d+")不相等")}if((g.E&&!g.F)||(!g.E&&g.F))errs.push("第"+(i+1)+"行 起始地址与结束地址必须同时为空或同时有值");if(g.E&&g.F&&parseInt(g.E,16)>=parseInt(g.F,16))errs.push("第"+(i+1)+"行 起始地址("+g.E+")必须小于结束地址("+g.F+")")}return errs}
 async function saveIpGroups(){for(let i=0;i<ipGroups.length;i++){const g=ipGroups[i];if(editingIdx===i){g.A=document.getElementById("ipf_"+i+"_A").value;g.B=document.getElementById("ipf_"+i+"_B").value;g.C=document.getElementById("ipf_"+i+"_C").value;g.D=document.getElementById("ipf_"+i+"_D").value;g.E=document.getElementById("ipf_"+i+"_E").value;g.F=document.getElementById("ipf_"+i+"_F").value}}const errs=ipv(ipGroups,-1);if(errs.length){alert("保存校验失败：\n"+errs.join("\n"));return}const ov=document.getElementById("docversionContent");ov.innerHTML='<div class="saving-overlay">保存中...</div>';try{const p=L()[currentProjectIdx];const h=await getHandle(p.name);const sf=await h.getDirectoryHandle("sf");const fh=await sf.getFileHandle(docDetailName,{create:true});const hdr=["IP名称","IP开关寄存器起始地址","IP开寄存器状态值","IP关寄存器状态值","IP参数起始地址","IP参数结束地址"];const data=[hdr];for(const g of ipGroups)data.push([g.A,g.B,g.C,g.D,g.E,g.F]);const ws=XLSX.utils.aoa_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Sheet1");const wbOut=XLSX.write(wb,{type:"array",bookType:"xlsx"});const wr=await fh.createWritable();await wr.write(wbOut);await wr.close();editingIdx=-1;backDocList();loadSfDocs();alert("保存成功")}catch(e){alert("保存失败："+e.message);renderIpGroups()}}
 /* === doc detail view === */
-async function showDocDetail(name){const p=L()[currentProjectIdx];if(!p)return;const h=await getHandle(p.name);if(!h){alert("无法访问");return}try{const sf=await h.getDirectoryHandle("sf");const fh=await sf.getFileHandle(name);const f=await fh.getFile();const data=await f.arrayBuffer();const wb=XLSX.read(data,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const json=XLSX.utils.sheet_to_json(ws,{header:1});ipGroups=[];editingIdx=-1;docDetailName=name;for(let r=1;r<json.length;r++){const row=json[r];if(!row||!row[0])continue;ipGroups.push({A:String(row[0]||"").trim(),B:String(row[1]||"").trim(),C:String(row[2]||"").trim(),D:String(row[3]||"").trim(),E:String(row[4]||"").trim(),F:String(row[5]||"").trim()})}renderIpGroups()}catch(e){ipGroups=[];editingIdx=-1;docDetailName=name;renderIpGroups()}}
+async function showDocDetail(name){const p=L()[currentProjectIdx];if(!p)return;const h=await getHandle(p.name);if(!h){alert("无法访问");return}if(typeof XLSX==="undefined"){document.getElementById("docversionContent").innerHTML='<div class="empty">XLSX\u5e93\u672a\u52a0\u8f7d</div>';return}try{const sf=await h.getDirectoryHandle("sf");const sp=await sf.queryPermission({mode:"readwrite"});if(sp!=="granted"){const sr=await sf.requestPermission({mode:"readwrite"});if(sr!=="granted"){document.getElementById("docversionContent").innerHTML='<div class=\empty\>无法访问sf目录</div>';return}}const fh=await sf.getFileHandle(name);const fp=await fh.queryPermission({mode:"readwrite"});if(fp!=="granted"){const fr=await fh.requestPermission({mode:"readwrite"});if(fr!=="granted"){document.getElementById("docversionContent").innerHTML='<div class=\empty\>无法访问文件</div>';return}}const f=await fh.getFile();const data=await f.arrayBuffer();const wb=XLSX.read(data,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const json=XLSX.utils.sheet_to_json(ws,{header:1});ipGroups=[];editingIdx=-1;docDetailName=name;for(let r=1;r<json.length;r++){const row=json[r];if(!row||!row[0])continue;ipGroups.push({A:String(row[0]||"").trim(),B:String(row[1]||"").trim(),C:String(row[2]||"").trim(),D:String(row[3]||"").trim(),E:String(row[4]||"").trim(),F:String(row[5]||"").trim()})}renderIpGroups()}catch(e){ipGroups=[];editingIdx=-1;docDetailName=name;renderIpGroups()}
 /* === event bindings === */
 document.getElementById("addBtn").addEventListener("click",addProject);
 document.getElementById("backBtn").addEventListener("click",showList);
@@ -318,6 +85,5 @@ document.getElementById("codeversionContent").addEventListener("click",e=>{const
 document.getElementById("refreshDocBtn").addEventListener("click",loadDocVersion);
 document.getElementById("docversionContent").addEventListener("click",e=>{const b=e.target.closest(".btn-edit");if(b){showDocDetail(b.dataset.name)}const d=e.target.closest(".btn-del");if(d&&confirm("确定要删除算法文档 "+E(d.dataset.name)+" 吗？")){deleteDoc(d.dataset.name)}});
 restoreHandles();
-</script>
-</body>
-</html>
+
+void 0;

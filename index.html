@@ -272,7 +272,7 @@ function renderItem(file,idx,key){if(key==="docs"){const st=file._valid===false?
 async function openFilePicker(multiple,accept){const i=document.createElement("input");i.type="file";i.multiple=multiple;if(accept)i.accept=accept;return new Promise(r=>{i.addEventListener("change",()=>r(i.files));i.click()})}
 /* === interpret area === */
 
-function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
+function startInterpret(){''}function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
 
 /* === project mgmt === */
 async function addProject(){if(window.showDirectoryPicker){try{const h=await window.showDirectoryPicker();await h.getDirectoryHandle("code",{create:true});await h.getDirectoryHandle("sf",{create:true});const a=L();a.push({name:h.name,path:"已选择文件夹: "+h.name,docs:[],codes:[]});S(a);projectHandles[h.name]=h;await dbPut(h.name,h);renderList();return}catch(e){if(e.name!=="AbortError")throw e}}const i=document.createElement("input");i.type="file";i.webkitdirectory=true;i.style.display="none";i.addEventListener("change",()=>{if(!i.files||!i.files.length)return;const d=i.files[0].webkitRelativePath.split("/")[0];const a=L();a.push({name:d,path:"已选择文件夹: "+d+"（降级模式）",docs:[],codes:[]});S(a);renderList()});document.body.appendChild(i);i.click();i.remove()}

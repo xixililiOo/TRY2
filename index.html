@@ -222,7 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 </div>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script>
-window.onerror=function(m,s,l,c,err){alert('JS ERROR: '+m+(' at line '+l+(','+c)};
+window.onerror=function(m,s,l,c,err){alert('JS ERROR: '+m+' at line '+l+', col '+c)};
 const SK="try2_projects",CONFIG_FILE="upload_config.json";
 let currentProjectIdx=-1,selectedDoc=null,selectedBase=null,currentView="upload",showInterpret=false,docDetailView=false,docDetailName="";
 const projectHandles={},pendingFileObjects={};

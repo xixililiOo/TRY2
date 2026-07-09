@@ -375,7 +375,7 @@ if(hasBase&&baseBins.length){window._renderIpTable(bct,ipG,baseBins,'Base版本'
 const hexSec=document.getElementById("hexCompareSection");
 const hexCt=document.getElementById("hexCompareContent");
 if(hexSec){if(hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}else{hexSec.classList.add("hidden")}}
-document.getElementById("interpretArea").classList.remove('hidden');
+const _dh=document.querySelector('.interpret-header');if(_dh&&selectedDoc)_dh.textContent='代码解读 (算法文档: '+selectedDoc+')';document.getElementById("interpretArea").classList.remove('hidden');
 document.getElementById("codeFooter").innerHTML="";
 renderUploads()}catch(e){alert('解读错误: '+e.message)}}
 function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
@@ -426,14 +426,20 @@ html+='<span style="color:#409eff">算法文档:</span> '+E(entry.linkedDoc||"-"
 html+='<span style="color:#e6a23c">Base版本:</span> '+E(entry.baseVersion||"首版");
 if(entry.baseVersionDoc)html+=' → '+E(entry.baseVersionDoc);
 html+='</div>';
-function renderIpTable(data,label){
-if(!data||!data.length)return;
-html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">'+label+'</div>';
-html+='<table class="version-table"><thead><tr><th>IP名称</th><th>状态</th><th>CRC</th></tr></thead><tbody>';
-for(const ip of data){html+='<tr><td class="cell-name">'+E(ip.n)+'</td><td>'+E(ip.st)+'</td><td style="color:#409eff;font-family:monospace">'+E(ip.crc)+'</td></tr>'}
+const _allNames=new Set();
+for(const _x of entry.interpretation||[])_allNames.add(_x.n);
+for(const _x of entry.baseInterpretation||[])_allNames.add(_x.n);
+if(_allNames.size){
+const _dn=entry.linkedDoc||'';
+html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">算法对比 (算法文档: '+E(_dn)+')</div>';
+html+='<table class="version-table"><thead><tr><th>IP名称</th><th colspan="2">当前代码</th><th colspan="2">Base版本</th></tr><tr><th></th><th>状态</th><th>CRC</th><th>状态</th><th>CRC</th></tr></thead><tbody>';
+for(const _nm of _allNames){
+const _cu=(entry.interpretation||[]).find(x=>x.n===_nm);
+const _ba=(entry.baseInterpretation||[]).find(x=>x.n===_nm);
+html+='<tr><td class="cell-name">'+E(_nm)+'</td>'
++'<td>'+E(_cu?_cu.st:'-')+'</td><td style="color:#409eff;font-family:monospace">'+E(_cu?_cu.crc:'-')+'</td>'
++'<td>'+E(_ba?_ba.st:'-')+'</td><td style="color:#409eff;font-family:monospace">'+E(_ba?_ba.crc:'-')+'</td></tr>'}
 html+='</tbody></table>'}
-renderIpTable(entry.interpretation,"当前代码 解读结果");
-renderIpTable(entry.baseInterpretation,"Base版本 解读结果");
 if(entry.hexCompare){
 html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">十六进制对比</div>';
 html+='<pre style="margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace;background:#fff;border:1px solid #e4e7ed;border-radius:8px;padding:12px;overflow-x:auto">'+entry.hexCompare+'</pre>'}

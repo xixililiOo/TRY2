@@ -292,16 +292,20 @@ function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j
 function renderHexCompare(container,baseData,curData){
 const maxLen=Math.max(curData.length,baseData.length);
 let h="Offset    Current                           Base\n";
+h+="          0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n";
 for(let a=0;a<maxLen;a+=16){
+let hasDiff=false;
 const aS=a.toString(16).toUpperCase().padStart(8,"0");
 let cH="",bH="";
 for(let c=0;c<16;c++){
 const o=a+c,cv=o<curData.length?curData[o]:-1,bv=o<baseData.length?baseData[o]:-1,d=cv!==bv;
+if(d)hasDiff=true;
 const cS=cv>=0?cv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 const bS=bv>=0?bv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 if(d){cH+="<b style=color:#f56c6c>"+cS+"</b> ";bH+="<b style=color:#f56c6c>"+bS+"</b> "}
 else{cH+=cS+" ";bH+=bS+" "}}
-h+=aS+"  "+cH+"  "+bH+"\n"}
+if(hasDiff)h+=aS+"  "+cH+"  "+bH+"\n"}
+if(h.indexOf("\n",50)<0)h+="(\u5168\u90e8\u76f8\u540c)"+"\n";
 container.innerHTML="<pre style=margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace>"+h+"</pre>"}
 function _renderIpTable(container,ipGroups,bins,label){
 if(!ipGroups.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': No IP data';container.appendChild(em);return}

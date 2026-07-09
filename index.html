@@ -410,11 +410,11 @@ async function saveIpGroups(){for(let i=0;i<ipGroups.length;i++){const g=ipGroup
 /* === doc detail view === */
 async function showDocDetail(name){const p=L()[currentProjectIdx];if(!p)return;const h=await getHandle(p.name);if(!h){alert("无法访问");return}try{const sf=await h.getDirectoryHandle("sf");const fh=await sf.getFileHandle(name);const f=await fh.getFile();const data=await f.arrayBuffer();const wb=XLSX.read(data,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const json=XLSX.utils.sheet_to_json(ws,{header:1});ipGroups=[];editingIdx=-1;docDetailName=name;for(let r=1;r<json.length;r++){const row=json[r];if(!row||!row[0])continue;ipGroups.push({A:String(row[0]||"").trim(),B:String(row[1]||"").trim(),C:String(row[2]||"").trim(),D:String(row[3]||"").trim(),E:String(row[4]||"").trim(),F:String(row[5]||"").trim()})}renderIpGroups()}catch(e){document.getElementById("docversionContent").innerHTML='<div class="empty">读取失败：'+e.message+'</div>'}}
 
-async function showCodeDetail(name){
+async function showCodeDetail(name, prevName){
 const p=L()[currentProjectIdx];
 if(!p){alert("项目不存在");return}
 const ct=document.getElementById("codeversionContent");
-let html='<div class="detail-bar"><div class="detail-bar-left"><button class="btn-back" onclick="loadCodeVersion()"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> 返回</button><span style="font-size:16px;font-weight:600">代码详情: '+E(name)+'</span></div></div>';
+let html='<div class="detail-bar"><div class="detail-bar-left"><button class="btn-back" onclick="'+_backAct+'"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> 返回</button><span style="font-size:16px;font-weight:600">代码详情: '+E(name)+'</span></div></div>';
 try{
 const cfg=await readCodeConfig(p.name);
 const entry=cfg.find(e=>e.codeFile===name);
@@ -425,6 +425,7 @@ html+='<span style="color:#67c23a">上传时间:</span> '+E(formatTime(entry.upl
 html+='<span style="color:#409eff">算法文档:</span> '+E(entry.linkedDoc||"-")+'<br>';
 html+='<span style="color:#e6a23c">Base版本:</span> '+E(entry.baseVersion||"首版");
 if(entry.baseVersionDoc)html+=' → '+E(entry.baseVersionDoc);
+if(entry.baseVersion&&entry.baseVersion!="首版"){html+=' <button class="btn-jump" style="margin-left:8px;padding:2px 8px;font-size:11px" data-target="'+E(entry.baseVersion)+'" data-current="'+E(name)+'">跳转</button>'}
 html+='</div>';
 const _allNames=new Set();
 for(const _x of entry.interpretation||[])_allNames.add(_x.n);
@@ -457,7 +458,7 @@ document.getElementById("interpretConfirmBtn").addEventListener("click",confirmC
 document.getElementById("list").addEventListener("click",e=>{const del=e.target.closest(".btn-del-project");if(del){if(confirm("确定要删除该项目吗？"))removeProject(parseInt(del.dataset.i));return}const card=e.target.closest(".project-card");if(card){currentProjectIdx=parseInt(card.dataset.i);showDetail()}});
 document.querySelectorAll(".detail-tab").forEach(t=>t.addEventListener("click",()=>switchView(t.dataset.view)));
 document.getElementById("refreshCodeBtn").addEventListener("click",loadCodeVersion);
-document.getElementById("codeversionContent").addEventListener("click",e=>{const d=e.target.closest(".btn-detail");if(d){showCodeDetail(d.dataset.name);return}const b=e.target.closest(".btn-del-version");if(b&&confirm("确定要删除版本 "+E(b.dataset.name)+" 吗？只能从最新版本开始删除。"))deleteVersion(b.dataset.name)});
+document.getElementById("codeversionContent").addEventListener("click",e=>{const j=e.target.closest(".btn-jump");if(j){showCodeDetail(j.dataset.target,j.dataset.current);return}const d=e.target.closest(".btn-detail");if(d){showCodeDetail(d.dataset.name);return}const b=e.target.closest(".btn-del-version");if(b&&confirm("确定要删除版本 "+E(b.dataset.name)+" 吗？只能从最新版本开始删除。"))deleteVersion(b.dataset.name)});
 document.getElementById("refreshDocBtn").addEventListener("click",loadDocVersion);
 document.getElementById("docversionContent").addEventListener("click",e=>{const b=e.target.closest(".btn-edit");if(b&&b.dataset.name){showDocDetail(b.dataset.name)}const d=e.target.closest(".btn-del");if(d&&confirm("确定要删除算法文档 "+E(d.dataset.name)+" 吗？")){deleteDoc(d.dataset.name)}});
 restoreHandles();

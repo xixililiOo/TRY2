@@ -327,7 +327,7 @@ const td2=document.createElement('td');td2.style.cssText='padding:12px 16px;font
 let bbg='#fdf6ec',bfc='#e6a23c';
 if(st==='ON'){bbg='#f0f9eb';bfc='#67c23a'}else if(st==='OFF'){bbg='#fef0f0';bfc='#f56c6c'}
 const badge=document.createElement('span');badge.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:'+bbg+';color:'+bfc;badge.textContent=st||'?';td2.appendChild(badge);tr.appendChild(td2);
-const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#409eff;font-family:monospace';td3.textContent='CRC:'+crcV;tr.appendChild(td3);
+const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#409eff;font-family:monospace';const _addrS=g.ps&&g.pe?g.ps+'~'+g.pe+' ':'';td3.textContent=_addrS+'CRC:'+crcV;tr.appendChild(td3);
 bd.appendChild(tr)}
 tb.appendChild(bd);container.appendChild(tb)}
 async function startInterpret(){

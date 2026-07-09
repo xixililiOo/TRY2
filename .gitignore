@@ -1,0 +1,30 @@
+﻿# Node.js
+node_modules/
+*.js_
+*.log
+
+# Python temp files
+*.py
+!**/agents/*.py
+
+# System files
+Thumbs.db
+.DS_Store
+*.swp
+*.swo
+
+# Editor temp
+*.bak
+*.tmp
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# Temp check files
+check.js
+temp_*
+
+# Test data (not source code)
+testfile/

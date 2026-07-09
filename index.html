@@ -325,10 +325,11 @@ bd.appendChild(tr)}
 tb.appendChild(bd);container.appendChild(tb)}
 async function startInterpret(){
 showInterpret=true;
-const p=L()[currentProjectIdx];
-if(!p)return;
-const codes=p.codes||[];
-if(!codes.length)return;
+const _pa=L(),_pp=_pa[currentProjectIdx];
+if(!_pp){alert('开始解读失败: 项目对象不存在, idx='+currentProjectIdx);return}
+const _cc=_pp.codes||[];
+if(!_cc.length){alert('开始解读失败: 没有待上传代码, p.codes='+JSON.stringify(_pp.codes||[]).slice(0,200));return}
+const p=_pp;
 const fl=document.getElementById("interpretFileList");
 fl.innerHTML='';
 const h=projectHandles[p.name];

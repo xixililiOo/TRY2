@@ -289,25 +289,31 @@ async function openFilePicker(multiple,accept){const i=document.createElement("i
 /* === interpret area === */
 
 function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}
-function renderHexCompare(container,baseData,curData){
+function renderHexCompare(container,baseData,curData,ipGroups){
 const maxLen=Math.max(curData.length,baseData.length);
-let h="Offset                    Current                                             Base                      \n";
-h+="          0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n";
+let h="";
+h+='<div style="font-family:Consolas,monospace;font-size:12px;line-height:1.5">';
+h+='<div>Offset                    Current                                             Base                      </div>';
+h+='<div>          0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</div>';
 for(let a=0;a<maxLen;a+=16){
 let hasDiff=false;
 const aS=a.toString(16).toUpperCase().padStart(8,"0");
-let cH="",bH="";
+let cH="",bH="";const doffs=[];
 for(let c=0;c<16;c++){
 const o=a+c,cv=o<curData.length?curData[o]:-1,bv=o<baseData.length?baseData[o]:-1,d=cv!==bv;
-if(d)hasDiff=true;
+if(d){hasDiff=true;doffs.push(o)}
 const cS=cv>=0?cv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 const bS=bv>=0?bv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 if(d){cH+="<b style=color:#f56c6c>"+cS+"</b> ";bH+="<b style=color:#f56c6c>"+bS+"</b> "}
 else{cH+=cS+" ";bH+=bS+" "}}
-if(hasDiff)h+=aS+"  "+cH+"  "+bH+"\n"}
-if(h.indexOf("\n",50)<0)h+="(\u5168\u90e8\u76f8\u540c)"+"\n";
-container.innerHTML="<pre style=margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace>"+h+"</pre>"}
-function _renderIpTable(container,ipGroups,bins,label){
+if(hasDiff){
+let inR=false;
+if(ipGroups){for(const g of ipGroups){if(g.ps&&g.pe){const st=parseInt(g.ps,16),ed=parseInt(g.pe,16);if(!isNaN(st)&&!isNaN(ed)){for(const o of doffs){if(o>=st&&o<=ed){inR=true;break}}if(inR)break}}}}}
+const bg=inR?"background:#ecf5ff":"";
+h+='<div'+(bg?' style="'+bg+'"':'')+'>'+aS+'  '+cH+'  '+bH+'</div>'}
+if(h.indexOf('<div',80)<0)h+='<div>(全部相同)</div>';
+h+='</div>';
+container.innerHTML=h}function _renderIpTable(container,ipGroups,bins,label){
 if(!ipGroups.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': No IP data';container.appendChild(em);return}
 if(!bins.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': 暂无数据';container.appendChild(em);return}
 const tb=document.createElement('table');tb.style.cssText='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)';

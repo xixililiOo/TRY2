@@ -180,7 +180,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
               <div class="interpret-header">代码解读</div>
               <div class="interpret-body">
                 <div class="interpret-files" id="interpretFileList"></div>
-                <div class="interpret-content" id="interpretContent">解读内容区域（待扩展）</div>
+                <div style="display:flex;gap:16px;flex:1">
+            <div style="flex:1;display:flex;flex-direction:column">
+              <div style="font-size:12px;font-weight:500;color:#606266;margin-bottom:6px;padding:0 4px">当前代码</div>
+              <div class="interpret-content" id="interpretContent"></div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column" id="baseInterpretCol">
+              <div style="font-size:12px;font-weight:500;color:#606266;margin-bottom:6px;padding:0 4px">Base版本</div>
+              <div class="interpret-content" id="interpretBaseContent"></div>
+            </div>
+          </div>
               </div>
               <div class="interpret-footer">
                 <button class="btn-confirm" id="interpretConfirmBtn">
@@ -272,7 +281,72 @@ function renderItem(file,idx,key){if(key==="docs"){const st=file._valid===false?
 async function openFilePicker(multiple,accept){const i=document.createElement("input");i.type="file";i.multiple=multiple;if(accept)i.accept=accept;return new Promise(r=>{i.addEventListener("change",()=>r(i.files));i.click()})}
 /* === interpret area === */
 
-function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}async function startInterpret(){showInterpret=true;const p=L()[currentProjectIdx];if(!p)return;const codes=p.codes||[];if(!codes.length)return;const fl=document.getElementById("interpretFileList");fl.innerHTML='';const h=projectHandles[p.name];let ipG=[],refDoc='';if(selectedDoc&&typeof XLSX!="undefined"&&h){try{const sf=await h.getDirectoryHandle("sf");const fh=await sf.getFileHandle(selectedDoc);const f=await fh.getFile();const d=await f.arrayBuffer();const wb=XLSX.read(d,{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];const j=XLSX.utils.sheet_to_json(ws,{header:1});for(let r=1;r<j.length;r++){const row=j[r];if(!row||!row[0])continue;ipG.push({n:String(row[0]||"").trim(),ra:String(row[1]||"").trim(),on:String(row[2]||"").trim(),off:String(row[3]||"").trim(),ps:String(row[4]||"").trim(),pe:String(row[5]||"").trim()})}refDoc=selectedDoc}catch(e){refDoc=selectedDoc+' (err)'}}else if(selectedDoc){refDoc=selectedDoc+' (no lib)'}else{refDoc='(none)'}const pfo=pendingFileObjects[p.name]?.codes||[];const bins=[];for(const bf of pfo)try{bins.push({n:bf.n,d:new Uint8Array(await bf.arrayBuffer())})}catch(e){}const ct=document.getElementById("interpretContent");ct.innerHTML='';if(!ipG.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent='No IP data';ct.appendChild(em)}else{const tb=document.createElement('table');tb.style.cssText='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)';const hdr=document.createElement('thead');const hr=document.createElement('tr');const hds=['IP名称','状态','CRC'];for(let hi=0;hi<3;hi++){const th=document.createElement('th');th.style.cssText='padding:12px 16px;font-size:13px;font-weight:500;color:#909399;text-align:left;background:#fafafa;border-bottom:1px solid #ebeef5';th.textContent=hds[hi];hr.appendChild(th)}hdr.appendChild(hr);tb.appendChild(hdr);const bd=document.createElement('tbody');for(const g of ipG){const addr=parseInt(g.ra,16);let st='',m='',mHex='';if(!isNaN(addr)){for(const b of bins){if(addr<b.d.length){const v=b.d[addr];const onP=g.on.split(/\s+/);const offP=g.off.split(/\s+/);if(onP.some(p=>parseInt(p,16)===v)){st='ON';m=g.on;mHex='0x'+v.toString(16).toUpperCase()}else if(offP.some(p=>parseInt(p,16)===v)){st='OFF';m=g.off;mHex='0x'+v.toString(16).toUpperCase()}break}}}let crcV='NA',crcLen=0;if(g.ps&&g.pe){const si2=parseInt(g.ps,16),ei2=parseInt(g.pe,16);if(!isNaN(si2)&&!isNaN(ei2)&&si2<=ei2){const len=ei2-si2+1;crcLen=len;const buf=new Uint8Array(len);let ok=false;for(const bb of bins){if(si2+len<=bb.d.length){buf.set(bb.d.slice(si2,si2+len));ok=true;break}}if(ok){const crc=crc16(buf);crcV='0x'+crc.toString(16).toUpperCase().padStart(4,'0')}}}const tr=document.createElement('tr');const td1=document.createElement('td');td1.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#f56c6c;font-weight:500';td1.textContent=g.n;tr.appendChild(td1);const td2=document.createElement('td');td2.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0';let bbg='#fdf6ec',bfc='#e6a23c';if(st==='ON'){bbg='#f0f9eb';bfc='#67c23a'}else if(st==='OFF'){bbg='#fef0f0';bfc='#f56c6c'}const badge=document.createElement('span');badge.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:'+bbg+';color:'+bfc;badge.textContent=st||'?';td2.appendChild(badge);tr.appendChild(td2);const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#409eff;font-family:monospace';td3.textContent='CRC:'+crcV;tr.appendChild(td3);bd.appendChild(tr)}tb.appendChild(bd);ct.appendChild(tb)}document.getElementById("interpretArea").classList.remove('hidden');document.getElementById("codeFooter").innerHTML="";renderUploads()}function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
+function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}async function startInterpret(){
+showInterpret=true;
+const p=L()[currentProjectIdx];
+if(!p)return;
+const codes=p.codes||[];
+if(!codes.length)return;
+const fl=document.getElementById("interpretFileList");
+fl.innerHTML='';
+const h=projectHandles[p.name];
+let ipG=[],refDoc='';
+if(selectedDoc&&typeof XLSX!="undefined"&&h){
+try{
+const sf=await h.getDirectoryHandle("sf");
+const fh=await sf.getFileHandle(selectedDoc);
+const f=await fh.getFile();
+const d=await f.arrayBuffer();
+const wb=XLSX.read(d,{type:"array"});
+const ws=wb.Sheets[wb.SheetNames[0]];
+const j=XLSX.utils.sheet_to_json(ws,{header:1});
+for(let r=1;r<j.length;r++){
+const row=j[r];
+if(!row||!row[0])continue;
+ipG.push({n:String(row[0]||"").trim(),ra:String(row[1]||"").trim(),on:String(row[2]||"").trim(),off:String(row[3]||"").trim(),ps:String(row[4]||"").trim(),pe:String(row[5]||"").trim()})}
+refDoc=selectedDoc}catch(e){refDoc=selectedDoc+' (err)'}
+}else if(selectedDoc){refDoc=selectedDoc+' (no lib)'}
+else{refDoc='(none)'}
+const pfo=pendingFileObjects[p.name]?.codes||[];
+const curBins=[];
+for(const bf of pfo)try{curBins.push({n:bf.n,d:new Uint8Array(await bf.arrayBuffer())})}catch(e){}
+let baseBins=[];
+if(selectedBase&&h){try{const cd=await h.getDirectoryHandle("code");const bfh=await cd.getFileHandle(selectedBase);const bf=await bfh.getFile();const bd=await bf.arrayBuffer();baseBins.push({n:selectedBase,d:new Uint8Array(bd)})}catch(e){}}
+const ct=document.getElementById("interpretContent");
+const bct=document.getElementById("interpretBaseContent");
+ct.innerHTML='';
+bct.innerHTML='';
+const baseCol=document.getElementById("baseInterpretCol");
+if(selectedBase&&baseBins.length){baseCol.style.display="flex"}else{baseCol.style.display="none"}
+function renderTable(container,bins,label){
+if(!ipG.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': No IP data';container.appendChild(em);return}
+if(!bins.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': '+(!selectedBase?'暂无数据':'无法加载文件');container.appendChild(em);return}
+const tb=document.createElement('table');tb.style.cssText='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)';
+const hdr=document.createElement('thead');const hr=document.createElement('tr');
+const hds=['IP名称','状态','CRC'];
+for(let hi=0;hi<3;hi++){const th=document.createElement('th');th.style.cssText='padding:12px 16px;font-size:13px;font-weight:500;color:#909399;text-align:left;background:#fafafa;border-bottom:1px solid #ebeef5';th.textContent=hds[hi];hr.appendChild(th)}
+hdr.appendChild(hr);tb.appendChild(hdr);
+const bd=document.createElement('tbody');
+for(const g of ipG){
+const addr=parseInt(g.ra,16);let st='',m='',mHex='';
+if(!isNaN(addr)){for(const b of bins){if(addr<b.d.length){const v=b.d[addr];const onP=g.on.split(/\s+/);const offP=g.off.split(/\s+/);if(onP.some(p=>parseInt(p,16)===v)){st='ON';m=g.on;mHex='0x'+v.toString(16).toUpperCase()}else if(offP.some(p=>parseInt(p,16)===v)){st='OFF';m=g.off;mHex='0x'+v.toString(16).toUpperCase()}break}}}
+let crcV='NA',crcLen=0;
+if(g.ps&&g.pe){const si2=parseInt(g.ps,16),ei2=parseInt(g.pe,16);if(!isNaN(si2)&&!isNaN(ei2)&&si2<=ei2){const len=ei2-si2+1;crcLen=len;const buf=new Uint8Array(len);let ok=false;for(const bb of bins){if(si2+len<=bb.d.length){buf.set(bb.d.slice(si2,si2+len));ok=true;break}}if(ok){const crc=crc16(buf);crcV='0x'+crc.toString(16).toUpperCase().padStart(4,'0')}}}
+const tr=document.createElement('tr');
+const td1=document.createElement('td');td1.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#f56c6c;font-weight:500';td1.textContent=g.n;tr.appendChild(td1);
+const td2=document.createElement('td');td2.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0';
+let bbg='#fdf6ec',bfc='#e6a23c';
+if(st==='ON'){bbg='#f0f9eb';bfc='#67c23a'}else if(st==='OFF'){bbg='#fef0f0';bfc='#f56c6c'}
+const badge=document.createElement('span');badge.style.cssText='display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;background:'+bbg+';color:'+bfc;badge.textContent=st||'?';td2.appendChild(badge);tr.appendChild(td2);
+const td3=document.createElement('td');td3.style.cssText='padding:12px 16px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#409eff;font-family:monospace';td3.textContent='CRC:'+crcV;tr.appendChild(td3);
+bd.appendChild(tr)}
+tb.appendChild(bd);container.appendChild(tb)}
+renderTable(ct,curBins,'当前代码');
+renderTable(bct,baseBins,'Base版本');
+document.getElementById("interpretArea").classList.remove('hidden');
+document.getElementById("codeFooter").innerHTML="";
+renderUploads()}
+function cancelInterpret(){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");renderUploads()}
 
 /* === project mgmt === */
 async function addProject(){if(window.showDirectoryPicker){try{const h=await window.showDirectoryPicker();await h.getDirectoryHandle("code",{create:true});await h.getDirectoryHandle("sf",{create:true});const a=L();a.push({name:h.name,path:"已选择文件夹: "+h.name,docs:[],codes:[]});S(a);projectHandles[h.name]=h;await dbPut(h.name,h);renderList();return}catch(e){if(e.name!=="AbortError")throw e}}const i=document.createElement("input");i.type="file";i.webkitdirectory=true;i.style.display="none";i.addEventListener("change",()=>{if(!i.files||!i.files.length)return;const d=i.files[0].webkitRelativePath.split("/")[0];const a=L();a.push({name:d,path:"已选择文件夹: "+d+"（降级模式）",docs:[],codes:[]});S(a);renderList()});document.body.appendChild(i);i.click();i.remove()}

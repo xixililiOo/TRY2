@@ -289,31 +289,25 @@ async function openFilePicker(multiple,accept){const i=document.createElement("i
 /* === interpret area === */
 
 function crc16(d){let c=0xFFFF;for(let i=0;i<d.length;i++){c^=d[i];for(let j=0;j<8;j++){if(c&1)c=(c>>1)^0xA001;else c>>=1}}return c}
-function renderHexCompare(container,baseData,curData,ipGroups){
+function renderHexCompare(container,baseData,curData){
 const maxLen=Math.max(curData.length,baseData.length);
-let h="";
-h+='<div style="font-family:Consolas,monospace;font-size:12px;line-height:1.5">';
-h+='<div>Offset                    Current                                             Base                      </div>';
-h+='<div>          0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F</div>';
+let h="Offset                    Current                                             Base                      \n";
+h+="          0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n";
 for(let a=0;a<maxLen;a+=16){
 let hasDiff=false;
 const aS=a.toString(16).toUpperCase().padStart(8,"0");
-let cH="",bH="";const doffs=[];
+let cH="",bH="";
 for(let c=0;c<16;c++){
 const o=a+c,cv=o<curData.length?curData[o]:-1,bv=o<baseData.length?baseData[o]:-1,d=cv!==bv;
-if(d){hasDiff=true;doffs.push(o)}
+if(d)hasDiff=true;
 const cS=cv>=0?cv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 const bS=bv>=0?bv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 if(d){cH+="<b style=color:#f56c6c>"+cS+"</b> ";bH+="<b style=color:#f56c6c>"+bS+"</b> "}
 else{cH+=cS+" ";bH+=bS+" "}}
-let inR=false;
-if(hasDiff){
-if(ipGroups){for(const g of ipGroups){if(g.ps&&g.pe){const st=parseInt(g.ps,16),ed=parseInt(g.pe,16);if(!isNaN(st)&&!isNaN(ed)){for(const o of doffs){if(o>=st&&o<=ed){inR=true;break}}if(inR)break}}}}}
-const bg=inR?"background:#ecf5ff":"";
-h+='<div'+(bg?' style="'+bg+'"':'')+'>'+aS+'  '+cH+'  '+bH+'</div>'}
-if(h.indexOf('<div',80)<0)h+='<div>(全部相同)</div>';
-h+='</div>';
-container.innerHTML=h}function _renderIpTable(container,ipGroups,bins,label){
+if(hasDiff)h+=aS+"  "+cH+"  "+bH+"\n"}
+if(h.indexOf("\n",50)<0)h+="(\u5168\u90e8\u76f8\u540c)"+"\n";
+container.innerHTML="<pre style=margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace>"+h+"</pre>"}
+function _renderIpTable(container,ipGroups,bins,label){
 if(!ipGroups.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': No IP data';container.appendChild(em);return}
 if(!bins.length){const em=document.createElement('div');em.style.cssText='color:#bbb;font-size:13px;text-align:center;padding:20px';em.textContent=label+': 暂无数据';container.appendChild(em);return}
 const tb=document.createElement('table');tb.style.cssText='width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)';
@@ -380,7 +374,7 @@ window._renderIpTable(ct,ipG,curBins,'当前代码');
 if(hasBase&&baseBins.length){window._renderIpTable(bct,ipG,baseBins,'Base版本')}else{bct.innerHTML='<div style="color:#bbb;font-size:13px;text-align:center;padding:20px">首版，无基版本可对比</div>'}
 const hexSec=document.getElementById("hexCompareSection");
 const hexCt=document.getElementById("hexCompareContent");
-if(hexSec){if(hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d,ipG)}else{hexSec.classList.add("hidden")}}
+if(hexSec){if(hasBase&&baseBins.length&&curBins.length){hexSec.classList.remove("hidden");renderHexCompare(hexCt,baseBins[0].d,curBins[0].d)}else{hexSec.classList.add("hidden")}}
 const _dh=document.querySelector('.interpret-header');if(_dh&&selectedDoc)_dh.textContent='代码解读 (算法文档: '+selectedDoc+')';document.getElementById("interpretArea").classList.remove('hidden');
 document.getElementById("codeFooter").innerHTML="";
 renderUploads()}catch(e){alert('解读错误: '+e.message)}}
@@ -392,7 +386,7 @@ function removeProject(idx){const a=L(),p=a[idx];if(!p)return;if(projectHandles[
 /* === push / remove / confirm === */
 async function pushFile(type,files){const p=L()[currentProjectIdx],key=type==="doc"?"docs":"codes";if(!p)return;if(!p[key])p[key]=[];const cfg=key==="codes"?await readCodeConfig(p.name):[];const cm={};for(const e of cfg)cm[e.codeFile]=e;for(const f of files){const it={name:f.name,size:formatSize(f.size)};if(key==="codes"){if(selectedDoc)it.linkedDoc=selectedDoc;if(selectedBase){it.baseVersion=selectedBase;const be=cm[selectedBase];if(be&&be.linkedDoc)it.baseVersionDoc=be.linkedDoc}}p[key].push(it)}if(!pendingFileObjects[p.name])pendingFileObjects[p.name]={};if(!pendingFileObjects[p.name][key])pendingFileObjects[p.name][key]=[];for(const f of files){pendingFileObjects[p.name][key].push(f)}const a=L();a[currentProjectIdx]=p;S(a);renderUploads();if(key==="docs"&&typeof XLSX!=="undefined"){const idx=p[key].length-files.length;for(let fi=0;fi<files.length;fi++){(function(f,di){validateXlsxFile(f).then(r=>{const pp=L()[currentProjectIdx];if(!pp)return;const dd=pp[key]||[];if(di<dd.length&&dd[di].name===f.name){dd[di]._valid=r.ok;if(!r.ok)dd[di]._errors=r.errors;const aa=L();aa[currentProjectIdx]=pp;S(aa);renderUploads()}})})(files[fi],idx+fi)}}}
 function removeFile(type,idx){const p=L()[currentProjectIdx],key=type==="doc"?"docs":"codes";if(!p||!p[key])return;p[key].splice(idx,1);if(pendingFileObjects[p.name]?.[key])pendingFileObjects[p.name][key].splice(idx,1);if(!p[key].length&&key==="codes"){showInterpret=false;document.getElementById("interpretArea").classList.add("hidden")}const a=L();a[currentProjectIdx]=p;S(a);renderUploads()}
-async function confirmUpload(subDir,key){const p=L()[currentProjectIdx];if(!p)return;if(key==="docs"){if((p[key]||[]).some(f=>f._valid===false)){alert("存在校验不通过的文档，请修正后重试");return}}const h=await getHandle(p.name);if(!h){alert("无法访问项目目录，请返回列表重新进入项目以授权");return}const pending=p[key]||[];if(!pending.length)return;try{const dh=await h.getDirectoryHandle(subDir,{create:true});const existing=new Set();for await(const[n]of dh.entries())existing.add(n);const fo=pendingFileObjects[p.name]?.[key]||[];const conflicts=[],written=[];for(let i=0;i<pending.length;i++){const m=pending[i];if(existing.has(m.name)){conflicts.push(m.name);continue}const f=fo[i];if(!f)continue;const d=await f.arrayBuffer();const fh=await dh.getFileHandle(m.name,{create:true});const ws=await fh.createWritable();await ws.write(d);await ws.close();written.push(m.name)}if(key==="codes"&&written.length){const ec=await readCodeConfig(p.name);const es=new Set(ec.map(e=>e.codeFile+"|||"+e.linkedDoc+"|||"+e.baseVersion+"|||"+e.baseVersionDoc));for(const d of pending){if(written.includes(d.name)){const k=d.name+"|||"+(d.linkedDoc||"")+"|||"+(d.baseVersion||"")+"|||"+(d.baseVersionDoc||"");if(!es.has(k)){const _ipData=[];(()=>{const _t=document.querySelector('#interpretContent table');if(_t){_t.querySelectorAll('tbody tr').forEach(_r=>{const _c=_r.querySelectorAll('td');if(_c.length>=3)_ipData.push({n:_c[0].textContent,st:_c[1].textContent,crc:_c[2].textContent})})}})();const _bip=[];(()=>{const _t=document.querySelector('#interpretBaseContent table');if(_t){_t.querySelectorAll('tbody tr').forEach(_r=>{const _c=_r.querySelectorAll('td');if(_c.length>=3)_bip.push({n:_c[0].textContent,st:_c[1].textContent,crc:_c[2].textContent})})}})();const _hh=(()=>{const _p=document.querySelector('#hexCompareContent');if(!_p)return '';const _c=_p.innerHTML;return _c.indexOf('font-family')>=0?_c:''})();ec.push({codeFile:d.name,uploadedAt:new Date().toISOString(),linkedDoc:d.linkedDoc||"",baseVersion:d.baseVersion||"",baseVersionDoc:d.baseVersionDoc||"",interpretation:_ipData,baseInterpretation:_bip,hexCompare:_hh});es.add(k)}}}await writeCodeConfig(p.name,ec)}p[key]=[];if(pendingFileObjects[p.name])delete pendingFileObjects[p.name][key];showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");const a=L();a[currentProjectIdx]=p;S(a);renderUploads();loadSfDocs();loadCodeVersions();selectedDoc=null;selectedBase=null;renderSfChecks();updateSelectedBar();let msg="";if(written.length)msg+=written.length+" 个文件已上传到 "+subDir+"/";if(conflicts.length)msg+="\n因重名跳过："+conflicts.join("、");if(msg)alert(msg);else alert("没有文件被上传")}catch(e){alert("写入失败："+e.message)}}
+async function confirmUpload(subDir,key){const p=L()[currentProjectIdx];if(!p)return;if(key==="docs"){if((p[key]||[]).some(f=>f._valid===false)){alert("存在校验不通过的文档，请修正后重试");return}}const h=await getHandle(p.name);if(!h){alert("无法访问项目目录，请返回列表重新进入项目以授权");return}const pending=p[key]||[];if(!pending.length)return;try{const dh=await h.getDirectoryHandle(subDir,{create:true});const existing=new Set();for await(const[n]of dh.entries())existing.add(n);const fo=pendingFileObjects[p.name]?.[key]||[];const conflicts=[],written=[];for(let i=0;i<pending.length;i++){const m=pending[i];if(existing.has(m.name)){conflicts.push(m.name);continue}const f=fo[i];if(!f)continue;const d=await f.arrayBuffer();const fh=await dh.getFileHandle(m.name,{create:true});const ws=await fh.createWritable();await ws.write(d);await ws.close();written.push(m.name)}if(key==="codes"&&written.length){const ec=await readCodeConfig(p.name);const es=new Set(ec.map(e=>e.codeFile+"|||"+e.linkedDoc+"|||"+e.baseVersion+"|||"+e.baseVersionDoc));for(const d of pending){if(written.includes(d.name)){const k=d.name+"|||"+(d.linkedDoc||"")+"|||"+(d.baseVersion||"")+"|||"+(d.baseVersionDoc||"");if(!es.has(k)){const _ipData=[];(()=>{const _t=document.querySelector('#interpretContent table');if(_t){_t.querySelectorAll('tbody tr').forEach(_r=>{const _c=_r.querySelectorAll('td');if(_c.length>=3)_ipData.push({n:_c[0].textContent,st:_c[1].textContent,crc:_c[2].textContent})})}})();const _bip=[];(()=>{const _t=document.querySelector('#interpretBaseContent table');if(_t){_t.querySelectorAll('tbody tr').forEach(_r=>{const _c=_r.querySelectorAll('td');if(_c.length>=3)_bip.push({n:_c[0].textContent,st:_c[1].textContent,crc:_c[2].textContent})})}})();const _hh=(()=>{const _p=document.querySelector('#hexCompareContent pre');return _p?_p.innerHTML:''})();ec.push({codeFile:d.name,uploadedAt:new Date().toISOString(),linkedDoc:d.linkedDoc||"",baseVersion:d.baseVersion||"",baseVersionDoc:d.baseVersionDoc||"",interpretation:_ipData,baseInterpretation:_bip,hexCompare:_hh});es.add(k)}}}await writeCodeConfig(p.name,ec)}p[key]=[];if(pendingFileObjects[p.name])delete pendingFileObjects[p.name][key];showInterpret=false;document.getElementById("interpretArea").classList.add("hidden");const a=L();a[currentProjectIdx]=p;S(a);renderUploads();loadSfDocs();loadCodeVersions();selectedDoc=null;selectedBase=null;renderSfChecks();updateSelectedBar();let msg="";if(written.length)msg+=written.length+" 个文件已上传到 "+subDir+"/";if(conflicts.length)msg+="\n因重名跳过："+conflicts.join("、");if(msg)alert(msg);else alert("没有文件被上传")}catch(e){alert("写入失败："+e.message)}}
 function confirmDocs(){confirmUpload("sf","docs")}
 function confirmCodes(){confirmUpload("code","codes")}
 /* === version views === */
@@ -450,7 +444,7 @@ html+='<tr><td class="cell-name">'+E(_nm)+'</td>'
 html+='</tbody></table>'}
 if(entry.hexCompare){
 html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">十六进制对比</div>';
-html+='<div style="overflow-x:auto">'+entry.hexCompare+'</div>'}
+html+='<pre style="margin:0;font-size:12px;line-height:1.5;font-family:Consolas,monospace;background:#fff;border:1px solid #e4e7ed;border-radius:8px;padding:12px;overflow-x:auto">'+entry.hexCompare+'</pre>'}
 ct.innerHTML=html
 }catch(e){ct.innerHTML=html+'<div class="empty">读取失败: '+e.message+'</div>'}
 }

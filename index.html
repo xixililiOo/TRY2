@@ -306,8 +306,8 @@ const cS=cv>=0?cv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 const bS=bv>=0?bv.toString(16).toUpperCase().padStart(2,"0"):"  ";
 if(d){cH+="<b style=color:#f56c6c>"+cS+"</b> ";bH+="<b style=color:#f56c6c>"+bS+"</b> "}
 else{cH+=cS+" ";bH+=bS+" "}}
-if(hasDiff){
 let inR=false;
+if(hasDiff){
 if(ipGroups){for(const g of ipGroups){if(g.ps&&g.pe){const st=parseInt(g.ps,16),ed=parseInt(g.pe,16);if(!isNaN(st)&&!isNaN(ed)){for(const o of doffs){if(o>=st&&o<=ed){inR=true;break}}if(inR)break}}}}}
 const bg=inR?"background:#ecf5ff":"";
 h+='<div'+(bg?' style="'+bg+'"':'')+'>'+aS+'  '+cH+'  '+bH+'</div>'}

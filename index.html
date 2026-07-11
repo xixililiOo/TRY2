@@ -324,7 +324,7 @@ async function writeCodeConfig(name,entries){const h=await getHandle(name);if(!h
 document.getElementById("sfDocList").addEventListener("click",e=>{const el=e.target.closest(".sf-file");if(!el)return;selectedDoc=(selectedDoc===el.dataset.name)?null:el.dataset.name;renderSfChecks();updateSelectedBar()});
 document.getElementById("sfCodeVerList").addEventListener("click",e=>{const el=e.target.closest(".sf-file");if(!el)return;selectedBase=(selectedBase===el.dataset.name)?null:el.dataset.name;renderSfChecks();updateSelectedBar()});
 async function loadSfDocs(){const p=L()[currentProjectIdx],c=document.getElementById("sfDocList");if(!p){c.innerHTML="<div class=\"sf-empty\">暂无数据</div>";return}const h=await getHandle(p.name);if(!h){c.innerHTML="<div class=\"sf-empty\">请重新授权</div>";return}try{const sf=await h.getDirectoryHandle("sf"),files=[];for await(const[n,entry]of sf.entries()){if(entry.kind==="file")files.push(n)}files.sort((a,b)=>a.localeCompare(b));if(!files.length){c.innerHTML="<div class=\"sf-empty\">暂无文档</div>";renderSfChecks();updateSelectedBar();return}c.innerHTML=files.map(n=>{const sel=selectedDoc===n?" selected":"";return"<div class=\"sf-file"+sel+"\" data-name=\""+E(n)+"\"><div class=\"sf-check"+sel+"\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/></svg></div><svg class=\"doc-icon\" viewBox=\"0 0 24 24\"><path d=\"M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z\"/></svg><span class=\"sf-file-name\" title=\""+E(n)+"\">"+E(n)+"</span></div>"}).join("");renderSfChecks();updateSelectedBar()}catch(e){c.innerHTML="<div class=\"sf-empty\">读取失败</div>"}}
-async function loadCodeVersions(){const p=L()[currentProjectIdx],c=document.getElementById("sfCodeVerList");if(!p){c.innerHTML="<div class=\"sf-empty\">暂无数据</div>";return}const h=await getHandle(p.name);if(!h){c.innerHTML="<div class=\"sf-empty\">请重新授权</div>";return}try{const config=await readCodeConfig(p.name);const cd=await h.getDirectoryHandle("code"),items=[];for await(const[n,entry]of cd.entries()){if(entry.kind==="file"&&n!==CONFIG_FILE)items.push(n)}for(const ce of config){if(!items.includes(ce.codeFile))items.push(ce.codeFile)}items.sort((a,b)=>a.localeCompare(b));if(!items.length){c.innerHTML="<div class=\"sf-empty\">\u6682\u65e0版本</div>";renderSfChecks();updateSelectedBar();return}const cm={};for(const e of config)cm[e.codeFile]=e;c.innerHTML=items.map(n=>{const sel=selectedBase===n?" selected":"";const ce=cm[n];const doc=ce&&ce.linkedDoc?" <span class=\"sf-file-sub\">(\u7b97\u6cd5\u6587\u6863: "+E(ce.linkedDoc)+")</span>":"";return"<div class=\"sf-file"+sel+"\" data-name=\""+E(n)+"\"><div class=\"sf-check"+sel+"\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/></svg></div><svg class=\"code-icon\" viewBox=\"0 0 24 24\"><path d=\"M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z\"/></svg><span class=\"sf-file-name\" title=\""+E(n)+"\">"+E(n)+"</span>"+doc+"</div>"}).join("");renderSfChecks();updateSelectedBar();}catch(e){c.innerHTML="<div class=\"sf-empty\">读取失败</div>"}}
+async function loadCodeVersions(){const p=L()[currentProjectIdx],c=document.getElementById("sfCodeVerList");if(!p){c.innerHTML="<div class=\"sf-empty\">暂无数据</div>";return}const h=await getHandle(p.name);if(!h){c.innerHTML="<div class=\"sf-empty\">请重新授权</div>";return}try{const config=await readCodeConfig(p.name);const cd=await h.getDirectoryHandle("code"),items=[];for await(const[n,entry]of cd.entries()){if(entry.kind==="file"&&n!==CONFIG_FILE)items.push(n)}for(const ce of config){if(!items.includes(ce.codeFile))items.push(ce.codeFile)}items.sort((a,b)=>a.localeCompare(b));if(!items.length){c.innerHTML="<div class=\"sf-empty\">\u6682\u65e0版本</div>";renderSfChecks();updateSelectedBar();return}const cm={};for(const e of config)cm[e.codeFile]=e;c.innerHTML=items.map(n=>{const sel=selectedBase===n?" selected":"";const ce=cm[n];const doc=ce&&ce.linkedDoc?" <span class=\"sf-file-sub\">(算法文档: "+E(ce.linkedDoc)+")</span>":"";return"<div class=\"sf-file"+sel+"\" data-name=\""+E(n)+"\"><div class=\"sf-check"+sel+"\"><svg viewBox=\"0 0 24 24\"><path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/></svg></div><svg class=\"code-icon\" viewBox=\"0 0 24 24\"><path d=\"M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z\"/></svg><span class=\"sf-file-name\" title=\""+E(n)+"\">"+E(n)+"</span>"+doc+"</div>"}).join("");renderSfChecks();updateSelectedBar();}catch(e){c.innerHTML="<div class=\"sf-empty\">读取失败</div>"}}
 function renderSfChecks(){document.querySelectorAll("#sfDocList .sf-file").forEach(el=>{el.classList.toggle("selected",el.dataset.name===selectedDoc);const ck=el.querySelector(".sf-check");if(ck)ck.classList.toggle("selected",el.dataset.name===selectedDoc)});document.querySelectorAll("#sfCodeVerList .sf-file").forEach(el=>{el.classList.toggle("selected",el.dataset.name===selectedBase);const ck=el.querySelector(".sf-check");if(ck)ck.classList.toggle("selected",el.dataset.name===selectedBase)})}
 function updateSelectedBar(){const bar=document.getElementById("sfSelectedBar");let h="";if(selectedDoc)h+='<span class="tag doc">文档：'+E(selectedDoc)+"</span>";if(selectedBase)h+='<span class="tag base">基版本：'+E(selectedBase)+"</span>";bar.innerHTML=h||"请选择关联的算法文档"}
 
@@ -561,17 +561,29 @@ const _allNames=new Set();
 for(const _x of entry.interpretation||[])_allNames.add(_x.n);
 for(const _x of entry.baseInterpretation||[])_allNames.add(_x.n);
 if(_allNames.size){
-const _dn=entry.linkedDoc||'';
+const _dn=entry.linkedDoc||"";
 html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">算法对比 (算法文档: '+E(_dn)+')</div>';
-html+='<table class="version-table"><thead><tr><th>IP名称</th><th colspan="2">当前代码</th><th colspan="2">Base版本</th></tr><tr><th></th><th>状态</th><th>CRC</th><th>状态</th><th>CRC</th></tr></thead><tbody>';
+html+='<div style="overflow-x:auto"><table class="ip-table"><thead><tr><th colspan="6" class="section-header section-cur">CUR 代码</th><th class="col-divider"></th><th colspan="6" class="section-header section-base">Base 版本</th></tr><tr><th>IP名称</th><th>状态</th><th>参数地址</th><th>CRC</th><th>IP开关寄存器值</th><th>读取值</th><th class="col-divider"></th><th>IP名称</th><th>状态</th><th>参数地址</th><th>CRC</th><th>IP开关寄存器值</th><th>读取值</th></tr></thead><tbody>';
 for(const _nm of _allNames){
 const _cu=(entry.interpretation||[]).find(x=>x.n===_nm);
 const _ba=(entry.baseInterpretation||[]).find(x=>x.n===_nm);
-html+='<tr><td class="cell-name">'+E(_nm)+'</td>'
-+'<td>'+E(_cu?_cu.st:'-')+'</td><td style="color:#409eff;font-family:monospace">'+E(_cu?_cu.crc:'-')+'</td>'
-+'<td>'+E(_ba?_ba.st:'-')+'</td><td style="color:#409eff;font-family:monospace">'+E(_ba?_ba.crc:'-')+'</td></tr>'}
-html+='</tbody></table>'}
-if(entry.hexCompare){
+const hd=_cu&&_ba&&(_cu.st!==_ba.st||_cu.crc!==_ba.crc);
+html+='<tr'+(hd?' class="diff-row"':'')+'>';
+html+='<td class="'+(hd?'ip-name-diff':'ip-name')+'">'+E(_nm)+'</td>';
+if(_cu){if(_cu.st==="ON")html+='<td><span class="status-badge status-on">ON</span></td>';else if(_cu.st==="OFF")html+='<td><span class="status-badge status-off">OFF</span></td>';else html+='<td><span class="status-badge status-unk">?</span></td>'}
+else html+='<td><span class="status-badge status-na">NA</span></td>';
+html+='<td class="param-addr">-</td>';
+html+='<td><span class="crc-val'+(hd&&_cu&&_ba&&_cu.crc!==_ba.crc?' crc-diff':'')+'">'+E(_cu?_cu.crc:'NA')+'</span></td>';
+html+='<td><span class="switch-na">-</span></td>';html+='<td><span class="read-na">-</span></td>';
+html+='<td class="col-divider"></td>';
+html+='<td class="'+(hd?'ip-name-diff':'ip-name')+'">'+E(_nm)+'</td>';
+if(_ba){if(_ba.st==="ON")html+='<td><span class="status-badge'+(hd&&_cu&&_cu.st!==_ba.st?' status-diff':' status-on')+'">ON</span></td>';else if(_ba.st==="OFF")html+='<td><span class="status-badge'+(hd&&_cu&&_cu.st!==_ba.st?' status-diff':' status-off')+'">OFF</span></td>';else html+='<td><span class="status-badge status-unk">?</span></td>'}
+else html+='<td><span class="status-badge status-na">NA</span></td>';
+html+='<td class="param-addr">-</td>';
+html+='<td><span class="crc-val'+(hd&&_cu&&_ba&&_cu.crc!==_ba.crc?' crc-diff':'')+'">'+E(_ba?_ba.crc:'NA')+'</span></td>';
+html+='<td><span class="switch-na">-</span></td>';html+='<td><span class="read-na">-</span></td>';
+html+='</tr>'}
+html+='</tbody></table></div>'}if(entry.hexCompare){
 html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">十六进制对比</div>';
 html+='<div style="border:1px solid #e4e7ed;border-radius:8px;overflow:hidden;background:#fff">'+entry.hexCompare+'</div>'}
 ct.innerHTML=html

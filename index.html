@@ -580,9 +580,9 @@ html+='<td class="col-divider"></td>';
 html+='<td class="'+(hd?'ip-name-diff':'ip-name')+'">'+E(_nm)+'</td>';
 if(_ba){if(_ba.st==="ON")html+='<td><span class="status-badge'+(hd&&_cu&&_cu.st!==_ba.st?' status-diff':' status-on')+'">ON</span></td>';else if(_ba.st==="OFF")html+='<td><span class="status-badge'+(hd&&_cu&&_cu.st!==_ba.st?' status-diff':' status-off')+'">OFF</span></td>';else html+='<td><span class="status-badge status-unk">?</span></td>'}
 else html+='<td><span class="status-badge status-na">NA</span></td>';
-html+='<td class="param-addr">'+E(_cu?_ba.addr?_ba.addr:'-':'')+'</td>';
+html+='<td class="param-addr">'+E(_ba&&_ba.addr?_ba.addr:'-')+'</td>';
 html+='<td><span class="crc-val'+(hd&&_cu&&_ba&&_cu.crc!==_ba.crc?' crc-diff':'')+'">'+E(_ba?_ba.crc:'NA')+'</span></td>';
-html+='<td><span class="switch-na">'+E(_cu?_ba.sw?_ba.sw:'-':'')+'</span></td>';html+='<td><span class="read-na">'+E(_cu?_ba.rd?_ba.rd:'-':'')+'</span></td>';
+html+='<td><span class="switch-na">'+E(_ba&&_ba.sw?_ba.sw:'-')+'</span></td>';html+='<td><span class="read-na">'+E(_ba&&_ba.rd?_ba.rd:'-')+'</span></td>';
 html+='</tr>'}
 html+='</tbody></table></div>'}if(entry.hexCompare&&entry.hexCompare.trim()){
 html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">十六进制对比</div>';

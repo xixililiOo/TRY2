@@ -1,6 +1,0 @@
-﻿node_modules/
-dist/
-*.exe
-xlsx-local/
-!xlsx-local/*.md
-.DS_Store

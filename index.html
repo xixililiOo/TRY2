@@ -432,7 +432,7 @@ h+='<td><div class="switch-cell">';
 if(onA.length)h+='<div class="switch-row"><span class="label">开</span><span class="vals on-vals">'+onA.map(x=>E(x)).join(' ')+'</span></div>';
 if(offA.length)h+='<div class="switch-row"><span class="label">关</span><span class="vals off-vals">'+offA.map(x=>E(x)).join(' ')+'</span></div>';
 if(!raOk)h+='<span class="switch-na">(越界)</span>';
-h+='</div></td>'}else h+='<td><span class="switch-na">'+E(_cu?_cu.sw||'':'')+'</span></td>';
+h+='</div></td>'}else h+='<td><span class="switch-na">'+E(_cu&&_cu.sw?_cu.sw:'-')+'</span></td>';
 // read value
 if(curRead===null)h+='<td><span class="read-na">NA</span></td>';
 else{h+='<td><span class="read-val'+(readDiff?' read-val-diff':'')+'">';h+=curRead.map(x=>E(x)).join(' ');h+='</span></td>'}
@@ -453,7 +453,7 @@ h+='<td><div class="switch-cell">';
 if(onA.length)h+='<div class="switch-row"><span class="label">开</span><span class="vals on-vals">'+onA.map(x=>E(x)).join(' ')+'</span></div>';
 if(offA.length)h+='<div class="switch-row"><span class="label">关</span><span class="vals off-vals">'+offA.map(x=>E(x)).join(' ')+'</span></div>';
 if(!raOk)h+='<span class="switch-na">(越界)</span>';
-h+='</div></td>'}else h+='<td><span class="switch-na">'+E(_cu?_cu.sw||'':'')+'</span></td>';
+h+='</div></td>'}else h+='<td><span class="switch-na">'+E(_cu&&_cu.sw?_cu.sw:'-')+'</span></td>';
 if(baseRead===null)h+='<td><span class="read-na">NA</span></td>';
 else{h+='<td><span class="read-val'+(readDiff?' read-val-diff':'')+'">';h+=baseRead.map(x=>E(x)).join(' ');h+='</span></td>'}
 }else{
@@ -573,18 +573,18 @@ html+='<tr'+(hd?' class="diff-row"':'')+'>';
 html+='<td class="'+(hd?'ip-name-diff':'ip-name')+'">'+E(_nm)+'</td>';
 if(_cu){if(_cu.st==="ON")html+='<td><span class="status-badge status-on">ON</span></td>';else if(_cu.st==="OFF")html+='<td><span class="status-badge status-off">OFF</span></td>';else html+='<td><span class="status-badge status-unk">?</span></td>'}
 else html+='<td><span class="status-badge status-na">NA</span></td>';
-html+='<td class="param-addr">'+E(_cu?_cu.addr||'':'')+'</td>';
+html+='<td class="param-addr">'+E(_cu&&_cu.addr?_cu.addr:'-')+'</td>';
 html+='<td><span class="crc-val'+(hd&&_cu&&_ba&&_cu.crc!==_ba.crc?' crc-diff':'')+'">'+E(_cu?_cu.crc:'NA')+'</span></td>';
-html+='<td><span class="switch-na">'+E(_cu?_cu.sw||'':'')+'</span></td>';html+='<td><span class="read-na">'+E(_cu?_cu.rd||'':'')+'</span></td>';
+html+='<td><span class="switch-na">'+E(_cu&&_cu.sw?_cu.sw:'-')+'</span></td>';html+='<td><span class="read-na">'+E(_cu&&_cu.rd?_cu.rd:'-')+'</span></td>';
 html+='<td class="col-divider"></td>';
 html+='<td class="'+(hd?'ip-name-diff':'ip-name')+'">'+E(_nm)+'</td>';
 if(_ba){if(_ba.st==="ON")html+='<td><span class="status-badge'+(hd&&_cu&&_cu.st!==_ba.st?' status-diff':' status-on')+'">ON</span></td>';else if(_ba.st==="OFF")html+='<td><span class="status-badge'+(hd&&_cu&&_cu.st!==_ba.st?' status-diff':' status-off')+'">OFF</span></td>';else html+='<td><span class="status-badge status-unk">?</span></td>'}
 else html+='<td><span class="status-badge status-na">NA</span></td>';
-html+='<td class="param-addr">'+E(_cu?_ba.addr||'':'')+'</td>';
+html+='<td class="param-addr">'+E(_cu?_ba.addr?_ba.addr:'-':'')+'</td>';
 html+='<td><span class="crc-val'+(hd&&_cu&&_ba&&_cu.crc!==_ba.crc?' crc-diff':'')+'">'+E(_ba?_ba.crc:'NA')+'</span></td>';
-html+='<td><span class="switch-na">'+E(_cu?_ba.sw||'':'')+'</span></td>';html+='<td><span class="read-na">'+E(_cu?_ba.rd||'':'')+'</span></td>';
+html+='<td><span class="switch-na">'+E(_cu?_ba.sw?_ba.sw:'-':'')+'</span></td>';html+='<td><span class="read-na">'+E(_cu?_ba.rd?_ba.rd:'-':'')+'</span></td>';
 html+='</tr>'}
-html+='</tbody></table></div>'}if(entry.hexCompare){
+html+='</tbody></table></div>'}if(entry.hexCompare&&entry.hexCompare.trim()){
 html+='<div style="font-size:14px;font-weight:500;color:#333;margin:16px 0 8px">十六进制对比</div>';
 html+='<div style="border:1px solid #e4e7ed;border-radius:8px;overflow:hidden;background:#fff">'+entry.hexCompare+'</div>'}
 ct.innerHTML=html
